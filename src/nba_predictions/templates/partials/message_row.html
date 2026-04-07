@@ -1,0 +1,19 @@
+{% if sent is defined and sent %}
+<tr>
+  <td colspan="5"><div class="alert alert-success mb-0">Poruka poslata korisniku {{ recipient.username }}.</div></td>
+</tr>
+{% else %}
+<tr>
+  <td colspan="5">
+    <form method="post" action="{{ url_for('admin.send_to_user', user_id=recipient.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="input-group">
+        <textarea name="body" class="form-control" rows="2" placeholder="Poruka za {{ recipient.username }}..." required></textarea>
+        <div class="input-group-append">
+          <button class="btn btn-primary">Pošalji</button>
+        </div>
+      </div>
+    </form>
+  </td>
+</tr>
+{% endif %}

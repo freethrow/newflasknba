@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Predikcije — {{ user.username }}{% endblock %}
+{% block content %}
+<h2>Predikcije: {{ user.username }}</h2>
+<table class="table table-sm">
+  <thead><tr><th>Serija</th><th>Predikcija</th><th>Poeni</th><th>Akcija</th></tr></thead>
+  <tbody>
+  {% for pred in predictions %}
+    {% include "partials/prediction_row.html" %}
+  {% else %}
+  <tr><td colspan="4" class="text-muted">Nema predikcija.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Nazad</a>
+{% endblock %}

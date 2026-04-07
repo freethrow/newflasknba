@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Admin panel{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Admin panel</h2>
+  <div>
+    <a href="{{ url_for('admin.log') }}" class="btn btn-sm btn-outline-secondary">Log</a>
+    <a href="{{ url_for('admin.inbox') }}" class="btn btn-sm btn-outline-secondary">Inbox</a>
+  </div>
+</div>
+
+<h4>Serije</h4>
+<table class="table table-sm" id="series-table">
+  <thead><tr><th>Domaćin</th><th>Gost</th><th>Rezultat</th><th>Status</th><th>Akcije</th></tr></thead>
+  <tbody>
+  {% for s in series_list %}
+    {% include "partials/series_row.html" %}
+  {% endfor %}
+  </tbody>
+</table>
+
+<h4 class="mt-4">Korisnici</h4>
+<table class="table table-sm">
+  <thead><tr><th>Korisnik</th><th>Poeni</th><th>Admin</th><th>Aktivan</th><th>Akcije</th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    {% include "partials/user_row.html" %}
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

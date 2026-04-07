@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Admin inbox{% endblock %}
+{% block content %}
+<h2>Inbox</h2>
+{% for m in messages %}
+<div class="card mb-2">
+  <div class="card-body">
+    <strong>{{ m.sender.username }}</strong>
+    <small class="text-muted ml-2">{{ m.created.strftime('%d.%m.%Y %H:%M') }}</small>
+    <p class="mt-1 mb-2">{{ m.body }}</p>
+    <form method="post" action="{{ url_for('admin.send_to_user', user_id=m.sender.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="input-group">
+        <textarea name="body" class="form-control" rows="2" placeholder="Odgovor..."></textarea>
+        <div class="input-group-append">
+          <button class="btn btn-primary">Odgovori</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% else %}
+<p class="text-muted">Nema poruka.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% for c in comments %}
+<div class="mb-2 pb-2 border-bottom">
+  <strong>{{ c.user.username }}</strong>
+  <small class="text-muted ml-2">{{ c.created.strftime('%d.%m %H:%M') }}</small>
+  <p class="mb-1">{{ c.body }}</p>
+  {% if current_user.is_admin %}
+    <form method="post" action="{{ url_for('admin.delete_comment', comment_id=c.id) }}" style="display:inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-link btn-sm text-danger p-0">Obriši</button>
+    </form>
+  {% endif %}
+</div>
+{% else %}
+<p class="text-muted">Nema komentara.</p>
+{% endfor %}

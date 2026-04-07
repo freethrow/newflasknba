@@ -1,0 +1,10 @@
+<tr id="user-row-{{ u.id }}">
+  <td>{{ u.username }}</td>
+  <td>{{ u.total }}</td>
+  <td>{% if u.is_admin %}<span class="badge badge-warning">Admin</span>{% else %}Ne{% endif %}</td>
+  <td>{% if u.is_active %}<span class="badge badge-success">Da</span>{% else %}<span class="badge badge-danger">Ne</span>{% endif %}</td>
+  <td>
+    <a href="{{ url_for('admin.user_predictions', user_id=u.id) }}" class="btn btn-sm btn-info">Predikcije</a>
+    <a href="{{ url_for('admin.compose_message', user_id=u.id) }}" class="btn btn-sm btn-secondary">Poruka</a>
+  </td>
+</tr>

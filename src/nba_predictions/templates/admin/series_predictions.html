@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Predikcije — {{ series.home }} vs {{ series.away }}{% endblock %}
+{% block content %}
+<h2>Predikcije: {{ series.home }} vs {{ series.away }}
+  {% if series.is_playin %}<span class="badge badge-info">Play-in</span>{% endif %}
+</h2>
+<form method="post" action="{{ url_for('admin.recalculate_series', series_id=series.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-warning mb-3">Ponovo izračunaj poene za ovu seriju</button>
+</form>
+<table class="table table-sm">
+  <thead><tr><th>Korisnik</th><th>Predikcija</th><th>Poeni</th><th>Akcija</th></tr></thead>
+  <tbody>
+  {% for pred in predictions %}
+    {% include "partials/prediction_row.html" %}
+  {% else %}
+  <tr><td colspan="4" class="text-muted">Nema predikcija.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Nazad</a>
+{% endblock %}

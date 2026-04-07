@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin log{% endblock %}
+{% block content %}
+<h2>Admin log (poslednjih 50)</h2>
+<table class="table table-sm">
+  <thead><tr><th>Ko</th><th>Kada</th><th>Akcija</th><th>ID</th><th>Pre</th><th>Posle</th></tr></thead>
+  <tbody>
+  {% for e in entries %}
+  <tr>
+    <td>{{ e.who }}</td>
+    <td>{{ e.when.strftime('%d.%m %H:%M') }}</td>
+    <td>{{ e.action }}</td>
+    <td>{{ e.target_id }}</td>
+    <td><small class="text-muted">{{ e.before }}</small></td>
+    <td><small class="text-muted">{{ e.after }}</small></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="text-muted">Nema unosa.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

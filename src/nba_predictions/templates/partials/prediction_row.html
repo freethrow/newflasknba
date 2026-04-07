@@ -1,0 +1,8 @@
+<tr id="pred-row-{{ pred.id }}">
+  <td>{% if pred.user is defined and pred.user %}{{ pred.user.username }}{% elif pred.series is defined and pred.series %}{{ pred.series.home }} vs {{ pred.series.away }}{% endif %}</td>
+  <td>{{ pred.predicted or '—' }}</td>
+  <td>{{ pred.score_made }}</td>
+  <td>
+    <a href="{{ url_for('admin.update_prediction', series_id=pred.series_id, pred_id=pred.id) }}" class="btn btn-sm btn-warning">Uredi</a>
+  </td>
+</tr>

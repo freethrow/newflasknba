@@ -1,0 +1,9 @@
+<tr id="series-row-{{ s.id }}">
+  <td>{{ s.home }}</td>
+  <td>{{ s.away }}</td>
+  <td>{{ s.result or '—' }}</td>
+  <td>{% if s.is_playin %}<span class="badge badge-info">Play-in</span>{% endif %} {% if s.open %}Otvorena{% else %}Zatvorena{% endif %}</td>
+  <td>
+    <a href="{{ url_for('admin.series_predictions', series_id=s.id) }}" class="btn btn-sm btn-info">Predikcije</a>
+  </td>
+</tr>
