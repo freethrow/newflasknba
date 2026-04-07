@@ -1,0 +1,11 @@
+flask>=3.1
+flask-sqlalchemy>=3.1
+flask-login>=0.6.3
+flask-wtf>=1.2
+flask-migrate>=4
+argon2-cffi
+python-dotenv
+faker
+resend
+flask-limiter
+itsdangerous>=2.1
