@@ -96,7 +96,7 @@ def _register_cli(app: Flask) -> None:
         preds = db.session.execute(db.select(Prediction)).scalars().all()
         for pred in preds:
             if pred.series.result and pred.predicted:
-                pred.score_made = calculate_score(pred.predicted, pred.series.result)
+                pred.score_made = calculate_score(pred.predicted, pred.series.result, is_playin=pred.series.is_playin)
             else:
                 pred.score_made = 0
 

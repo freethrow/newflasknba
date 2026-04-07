@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Poruka adminu{% endblock %}
+{% block content %}
+<h2>Pošalji poruku adminu</h2>
+<form method="post">
+  {{ form.csrf_token }}
+  <div class="form-group">
+    {{ form.body(class="form-control", rows=4) }}
+    {% for e in form.body.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+  </div>
+  {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

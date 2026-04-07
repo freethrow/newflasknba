@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Moje predikcije{% endblock %}
+{% block content %}
+<h2>Moje predikcije</h2>
+<table class="table">
+  <thead><tr><th>Serija</th><th>Predikcija</th><th>Rezultat</th><th>Poeni</th></tr></thead>
+  <tbody>
+  {% for p in predictions %}
+  <tr>
+    <td><a href="{{ url_for('main.series_detail', series_id=p.series_id) }}">{{ p.series.home }} vs {{ p.series.away }}</a></td>
+    <td>{{ p.predicted }}</td>
+    <td>{{ p.series.result or '—' }}</td>
+    <td>{{ p.score_made }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="4" class="text-muted">Nema predikcija.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

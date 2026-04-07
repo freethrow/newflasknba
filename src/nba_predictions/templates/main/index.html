@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Tabela{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Tabela — {{ current_season }}</h2>
+  {% if seasons|length > 1 %}
+  <div>
+    {% for s in seasons %}
+      <a href="?season={{ s }}" class="btn btn-sm {% if s == current_season %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ s }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>Korisnik</th><th>Poeni</th></tr></thead>
+  <tbody>
+  {% for u, pts in leaderboard %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ u.username }}</td>
+    <td>{{ pts }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="3" class="text-muted">Nema korisnika.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

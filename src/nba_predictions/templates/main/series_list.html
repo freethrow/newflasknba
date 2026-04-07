@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Serije{% endblock %}
+{% block content %}
+<h2>Serije</h2>
+<div class="row">
+{% for s in series_list %}
+<div class="col-md-4 mb-3">
+  <div class="card">
+    <div class="card-body">
+      <h5>{{ s.home }} vs {{ s.away }}</h5>
+      <span class="badge badge-{% if s.open %}success{% else %}secondary{% endif %}">
+        {% if s.open %}Otvorena{% else %}Zatvorena{% endif %}
+      </span>
+      {% if user_preds.get(s.id) %}
+        <p class="mt-2">Tvoja predikcija: <strong>{{ user_preds[s.id].predicted }}</strong></p>
+      {% endif %}
+      {% if s.result %}<p>Rezultat: <strong>{{ s.result }}</strong></p>{% endif %}
+      <a href="{{ url_for('main.series_detail', series_id=s.id) }}" class="btn btn-sm btn-primary mt-2">Detalji</a>
+    </div>
+  </div>
+</div>
+{% else %}
+<p class="text-muted">Nema serija za ovu sezonu.</p>
+{% endfor %}
+</div>
+{% endblock %}

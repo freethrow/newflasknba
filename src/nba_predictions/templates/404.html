@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}404{% endblock %}
+{% block content %}
+<h2>404 — Stranica nije pronađena</h2>
+<a href="{{ url_for('main.index') }}" class="btn btn-primary">Početna</a>
+{% endblock %}

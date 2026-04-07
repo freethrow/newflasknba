@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ series.home }} vs {{ series.away }}{% endblock %}
+{% block content %}
+<h2>{{ series.home }} vs {{ series.away }}</h2>
+<span class="badge badge-{% if series.open %}success{% else %}secondary{% endif %} mb-3">
+  {% if series.open %}Otvorena{% else %}Zatvorena{% endif %}
+</span>
+{% if series.result %}<p>Rezultat: <strong>{{ series.result }}</strong></p>{% endif %}
+
+{% if current_user.is_authenticated and series.open %}
+<h4>Tvoja predikcija</h4>
+<form method="post">
+  {{ pred_form.csrf_token }}
+  <div class="form-group">
+    {{ pred_form.predicted.label }}
+    {{ pred_form.predicted(class="form-control", style="width:120px", value=existing_pred.predicted if existing_pred else "") }}
+    {% for e in pred_form.predicted.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+  </div>
+  {{ pred_form.submit(class="btn btn-primary") }}
+</form>
+{% endif %}
+
+{% if not series.open and all_preds %}
+<h4 class="mt-4">Sve predikcije</h4>
+<table class="table">
+  <thead><tr><th>Korisnik</th><th>Predikcija</th><th>Poeni</th></tr></thead>
+  <tbody>
+  {% for p in all_preds %}
+  <tr><td>{{ p.user.username }}</td><td>{{ p.predicted }}</td><td>{{ p.score_made }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h4 class="mt-4">Komentari</h4>
+<div id="comment-list">
+  {% include "partials/comment_list.html" %}
+</div>
+{% if current_user.is_authenticated %}
+<form method="post" action="{{ url_for('main.post_comment', series_id=series.id) }}" class="mt-3">
+  {{ comment_form.csrf_token }}
+  {{ comment_form.body(class="form-control mb-2", rows=2, placeholder="Napiši komentar...") }}
+  {{ comment_form.submit(class="btn btn-secondary") }}
+</form>
+{% endif %}
+{% endblock %}

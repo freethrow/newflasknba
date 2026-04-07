@@ -90,6 +90,7 @@ class Series(db.Model):
     open: Mapped[bool] = mapped_column(Boolean, default=True)
     result: Mapped[Optional[str]] = mapped_column(String)
     season: Mapped[str] = mapped_column(String(10), index=True, default="2026")
+    is_playin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     predictions: Mapped[list[Prediction]] = relationship(
         "Prediction", back_populates="series"
