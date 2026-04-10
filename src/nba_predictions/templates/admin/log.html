@@ -1,22 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Admin log{% endblock %}
 {% block content %}
-<h2>Admin log (poslednjih 50)</h2>
-<table class="table table-sm">
-  <thead><tr><th>Ko</th><th>Kada</th><th>Akcija</th><th>ID</th><th>Pre</th><th>Posle</th></tr></thead>
-  <tbody>
-  {% for e in entries %}
-  <tr>
-    <td>{{ e.who }}</td>
-    <td>{{ e.when.strftime('%d.%m %H:%M') }}</td>
-    <td>{{ e.action }}</td>
-    <td>{{ e.target_id }}</td>
-    <td><small class="text-muted">{{ e.before }}</small></td>
-    <td><small class="text-muted">{{ e.after }}</small></td>
-  </tr>
-  {% else %}
-  <tr><td colspan="6" class="text-muted">Nema unosa.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+
+<h1 class="text-2xl font-bold mb-6">Admin log <span class="text-sm font-normal text-neutral-400">(poslednjih 50)</span></h1>
+
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left">Ko</th>
+        <th class="px-4 py-3 text-left">Kada</th>
+        <th class="px-4 py-3 text-left">Akcija</th>
+        <th class="px-4 py-3 text-left">ID</th>
+        <th class="px-4 py-3 text-left">Pre</th>
+        <th class="px-4 py-3 text-left">Posle</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% for e in entries %}
+      <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-900">
+        <td class="px-4 py-2 font-medium">{{ e.who }}</td>
+        <td class="px-4 py-2 text-neutral-500 font-mono text-xs">{{ e.when.strftime('%d.%m %H:%M') }}</td>
+        <td class="px-4 py-2">{{ e.action }}</td>
+        <td class="px-4 py-2 font-mono text-xs text-neutral-400">{{ e.target_id }}</td>
+        <td class="px-4 py-2 text-xs text-neutral-400 max-w-32 truncate">{{ e.before }}</td>
+        <td class="px-4 py-2 text-xs text-neutral-500 max-w-48 truncate">{{ e.after }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="px-4 py-4 text-center text-neutral-400">Nema unosa.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 {% endblock %}

@@ -1,16 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Predikcije — {{ user.username }}{% endblock %}
 {% block content %}
-<h2>Predikcije: {{ user.username }}</h2>
-<table class="table table-sm">
-  <thead><tr><th>Serija</th><th>Predikcija</th><th>Poeni</th><th>Akcija</th></tr></thead>
-  <tbody>
-  {% for pred in predictions %}
-    {% include "partials/prediction_row.html" %}
-  {% else %}
-  <tr><td colspan="4" class="text-muted">Nema predikcija.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
-<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Nazad</a>
+
+<h1 class="text-xl font-bold mb-6">Predikcije: {{ user.username }}</h1>
+
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-4">
+  <table class="w-full text-sm">
+    <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left">Serija</th>
+        <th class="px-4 py-3 text-left">Predikcija</th>
+        <th class="px-4 py-3 text-left">Poeni</th>
+        <th class="px-4 py-3 text-left"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% for pred in predictions %}
+        {% include "partials/prediction_row.html" %}
+      {% else %}
+      <tr><td colspan="4" class="px-4 py-4 text-center text-neutral-400">Nema predikcija.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<a href="{{ url_for('admin.dashboard') }}"
+   class="text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
+  ← Nazad na admin panel
+</a>
+
 {% endblock %}

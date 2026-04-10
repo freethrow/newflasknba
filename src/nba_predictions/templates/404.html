@@ -1,6 +1,13 @@
 {% extends "base.html" %}
-{% block title %}404{% endblock %}
+{% block title %}404 — Stranica nije pronađena{% endblock %}
 {% block content %}
-<h2>404 — Stranica nije pronađena</h2>
-<a href="{{ url_for('main.index') }}" class="btn btn-primary">Početna</a>
+<div class="flex flex-col items-center justify-center py-20 text-center">
+  <p class="text-8xl font-black text-neutral-100 dark:text-neutral-800 select-none">404</p>
+  <h1 class="text-2xl font-bold -mt-4 mb-2">Stranica nije pronađena</h1>
+  <p class="text-neutral-400 dark:text-neutral-500 mb-6 text-sm">Ova stranica ne postoji ili je premeštena.</p>
+  <a href="{{ url_for('main.index') }}"
+     class="px-4 py-2 bg-nba-500 hover:bg-nba-600 text-white font-medium rounded-md transition-colors">
+    Početna
+  </a>
+</div>
 {% endblock %}

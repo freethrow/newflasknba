@@ -1,16 +1,26 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Regexp
+from wtforms import SelectField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired
+
+REGULAR_CHOICES = [
+    ("4:0", "4:0"),
+    ("4:1", "4:1"),
+    ("4:2", "4:2"),
+    ("4:3", "4:3"),
+    ("3:4", "3:4"),
+    ("2:4", "2:4"),
+    ("1:4", "1:4"),
+    ("0:4", "0:4"),
+]
+
+PLAYIN_CHOICES = [
+    ("1:0", "1:0 (pobeda domaćina)"),
+    ("0:1", "0:1 (pobeda gosta)"),
+]
 
 
 class PredictionForm(FlaskForm):
-    predicted = StringField(
-        "Predikcija (npr. 4:2)",
-        validators=[
-            DataRequired(),
-            Regexp(r"^\d:\d$", message="Format mora biti X:Y npr. 4:2"),
-        ],
-    )
+    predicted = SelectField("Predikcija", validators=[DataRequired()], choices=[])
     submit = SubmitField("Pošalji")
 
 

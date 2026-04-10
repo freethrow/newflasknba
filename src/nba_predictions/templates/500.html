@@ -1,6 +1,13 @@
 {% extends "base.html" %}
-{% block title %}500{% endblock %}
+{% block title %}500 — Greška na serveru{% endblock %}
 {% block content %}
-<h2>500 — Greška na serveru</h2>
-<a href="{{ url_for('main.index') }}" class="btn btn-primary">Početna</a>
+<div class="flex flex-col items-center justify-center py-20 text-center">
+  <p class="text-8xl font-black text-neutral-100 dark:text-neutral-800 select-none">500</p>
+  <h1 class="text-2xl font-bold -mt-4 mb-2">Greška na serveru</h1>
+  <p class="text-neutral-400 dark:text-neutral-500 mb-6 text-sm">Nešto je pošlo naopako. Pokušaj ponovo.</p>
+  <a href="{{ url_for('main.index') }}"
+     class="px-4 py-2 bg-nba-500 hover:bg-nba-600 text-white font-medium rounded-md transition-colors">
+    Početna
+  </a>
+</div>
 {% endblock %}

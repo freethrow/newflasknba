@@ -1,15 +1,20 @@
 {% for c in comments %}
-<div class="mb-2 pb-2 border-bottom">
-  <strong>{{ c.user.username }}</strong>
-  <small class="text-muted ml-2">{{ c.created.strftime('%d.%m %H:%M') }}</small>
-  <p class="mb-1">{{ c.body }}</p>
-  {% if current_user.is_admin %}
-    <form method="post" action="{{ url_for('admin.delete_comment', comment_id=c.id) }}" style="display:inline">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="btn btn-link btn-sm text-danger p-0">Obriši</button>
-    </form>
-  {% endif %}
+<div class="py-3 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
+  <div class="flex items-baseline gap-2 mb-1">
+    <span class="font-medium text-sm">{{ c.user.username }}</span>
+    <span class="text-xs text-neutral-400">{{ c.created.strftime('%d.%m %H:%M') }}</span>
+    {% if current_user.is_admin %}
+      <button class="ml-auto text-xs text-red-500 hover:text-red-700 transition-colors"
+              hx-post="{{ url_for('admin.delete_comment', comment_id=c.id) }}"
+              hx-target="#comment-list"
+              hx-swap="outerHTML"
+              hx-confirm="Obrisati komentar?">
+        Obriši
+      </button>
+    {% endif %}
+  </div>
+  <p class="text-sm text-neutral-700 dark:text-neutral-300">{{ c.body }}</p>
 </div>
 {% else %}
-<p class="text-muted">Nema komentara.</p>
+<p class="text-sm text-neutral-400 dark:text-neutral-500 py-2">Nema komentara.</p>
 {% endfor %}

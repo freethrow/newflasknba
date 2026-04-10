@@ -1,13 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Poruka adminu{% endblock %}
 {% block content %}
-<h2>Pošalji poruku adminu</h2>
-<form method="post">
-  {{ form.csrf_token }}
-  <div class="form-group">
-    {{ form.body(class="form-control", rows=4) }}
-    {% for e in form.body.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+
+<div class="max-w-lg mx-auto mt-8">
+  <h1 class="text-2xl font-bold mb-6">Pošalji poruku adminu</h1>
+  <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6">
+    <form method="post" class="space-y-4">
+      {{ form.csrf_token }}
+      <div>
+        {{ form.body(class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-nba-500",
+                    rows=5, placeholder="Poruka...") }}
+        {% for e in form.body.errors %}
+          <p class="text-xs text-red-500 mt-1">{{ e }}</p>
+        {% endfor %}
+      </div>
+      {{ form.submit(class="bg-nba-500 hover:bg-nba-600 text-white font-semibold px-4 py-2 rounded-md transition-colors cursor-pointer") }}
+    </form>
   </div>
-  {{ form.submit(class="btn btn-primary") }}
-</form>
+  <p class="mt-4 text-sm text-center">
+    <a href="{{ url_for('main.messages') }}" class="text-neutral-500 hover:text-nba-500 transition-colors">
+      ← Nazad na poruke
+    </a>
+  </p>
+</div>
+
 {% endblock %}

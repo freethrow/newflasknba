@@ -1,16 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Poruke{% endblock %}
 {% block content %}
-<h2>Poruke od admina</h2>
-<a href="{{ url_for('main.send_message') }}" class="btn btn-primary mb-3">Pošalji poruku adminu</a>
-{% for m in messages %}
-<div class="card mb-2">
-  <div class="card-body">
-    <p>{{ m.body }}</p>
-    <small class="text-muted">{{ m.created.strftime('%d.%m.%Y %H:%M') }}</small>
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Poruke od admina</h1>
+  <a href="{{ url_for('main.send_message') }}"
+     class="px-3 py-1.5 bg-nba-500 hover:bg-nba-600 text-white text-sm font-medium rounded-md transition-colors">
+    Pošalji poruku
+  </a>
+</div>
+
+{% if messages %}
+<div class="space-y-3">
+  {% for m in messages %}
+  <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+    <p class="text-sm mb-2">{{ m.body }}</p>
+    <span class="text-xs text-neutral-400">{{ m.created.strftime('%d.%m.%Y %H:%M') }}</span>
   </div>
+  {% endfor %}
 </div>
 {% else %}
-<p class="text-muted">Nema poruka.</p>
-{% endfor %}
+<p class="text-neutral-400 dark:text-neutral-500">Nema poruka.</p>
+{% endif %}
+
 {% endblock %}

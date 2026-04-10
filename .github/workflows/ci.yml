@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Ruff lint
+        run: venv/bin/ruff check src/ || python -m ruff check src/
+
+      - name: Ruff format check
+        run: python -m ruff format --check src/ tests/
+
+      - name: Run tests
+        run: python -m pytest tests/ -q
+        env:
+          DATABASE_URL: sqlite:///:memory:
+          SECRET_KEY: ci-test-secret
+          CURRENT_SEASON: "2026"

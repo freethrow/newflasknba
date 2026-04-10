@@ -1,26 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Serije{% endblock %}
 {% block content %}
-<h2>Serije</h2>
-<div class="row">
-{% for s in series_list %}
-<div class="col-md-4 mb-3">
-  <div class="card">
-    <div class="card-body">
-      <h5>{{ s.home }} vs {{ s.away }}</h5>
-      <span class="badge badge-{% if s.open %}success{% else %}secondary{% endif %}">
-        {% if s.open %}Otvorena{% else %}Zatvorena{% endif %}
-      </span>
-      {% if user_preds.get(s.id) %}
-        <p class="mt-2">Tvoja predikcija: <strong>{{ user_preds[s.id].predicted }}</strong></p>
+
+<h1 class="text-2xl font-bold mb-6">Serije</h1>
+
+{% if series_list %}
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {% for s in series_list %}
+  <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 flex flex-col gap-3">
+    <div class="flex items-start justify-between gap-2">
+      <h2 class="font-semibold text-base leading-tight">{{ s.home }} <span class="text-neutral-400">vs</span> {{ s.away }}</h2>
+      {% if s.is_playin %}
+        <span class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-medium">Play-In</span>
       {% endif %}
-      {% if s.result %}<p>Rezultat: <strong>{{ s.result }}</strong></p>{% endif %}
-      <a href="{{ url_for('main.series_detail', series_id=s.id) }}" class="btn btn-sm btn-primary mt-2">Detalji</a>
     </div>
+
+    <div class="flex items-center gap-2 text-xs">
+      {% if s.open %}
+        <span class="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-medium">Otvorena</span>
+      {% else %}
+        <span class="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-medium">Zatvorena</span>
+      {% endif %}
+      {% if s.result %}
+        <span class="font-mono text-sm font-semibold">{{ s.result }}</span>
+      {% endif %}
+    </div>
+
+    {% if user_preds.get(s.id) %}
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">
+        Tvoja predikcija: <span class="font-mono font-semibold text-neutral-800 dark:text-neutral-100">{{ user_preds[s.id].predicted }}</span>
+      </p>
+    {% endif %}
+
+    <a href="{{ url_for('main.series_detail', series_id=s.id) }}"
+       class="mt-auto text-sm font-medium text-nba-500 hover:text-nba-600 transition-colors">
+      Detalji →
+    </a>
   </div>
+  {% endfor %}
 </div>
 {% else %}
-<p class="text-muted">Nema serija za ovu sezonu.</p>
-{% endfor %}
-</div>
+  <p class="text-neutral-400 dark:text-neutral-500">Nema serija za ovu sezonu.</p>
+{% endif %}
+
 {% endblock %}

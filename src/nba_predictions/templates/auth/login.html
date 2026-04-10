@@ -1,27 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Prijava{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-4">
-    <h2>Prijava</h2>
-    <form method="post">
+<div class="max-w-sm mx-auto mt-8">
+  <h1 class="text-2xl font-bold mb-6 text-center">Prijava</h1>
+  <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6">
+    <form method="post" class="space-y-4">
       {{ form.csrf_token }}
-      <div class="form-group">
-        {{ form.username.label }}
-        {{ form.username(class="form-control") }}
-        {% for e in form.username.errors %}<small class="text-danger">{{ e }}</small>{% endfor %}
+      <div>
+        {{ form.username.label(class="block text-sm font-medium mb-1") }}
+        {{ form.username(class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nba-500") }}
+        {% for e in form.username.errors %}
+          <p class="text-xs text-red-500 mt-1">{{ e }}</p>
+        {% endfor %}
       </div>
-      <div class="form-group">
-        {{ form.password.label }}
-        {{ form.password(class="form-control") }}
+      <div>
+        {{ form.password.label(class="block text-sm font-medium mb-1") }}
+        {{ form.password(class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nba-500") }}
       </div>
-      <div class="form-check mb-2">
-        {{ form.remember_me() }} {{ form.remember_me.label }}
+      <div class="flex items-center gap-2 text-sm">
+        {{ form.remember_me() }}
+        {{ form.remember_me.label }}
       </div>
-      {{ form.submit(class="btn btn-primary btn-block") }}
+      {{ form.submit(class="w-full bg-nba-500 hover:bg-nba-600 text-white font-semibold py-2 rounded-md transition-colors cursor-pointer") }}
     </form>
-    <p class="mt-2"><a href="{{ url_for('auth.reset_password_request') }}">Zaboravio si lozinku?</a></p>
-    <p><a href="{{ url_for('auth.register') }}">Registruj se</a></p>
+  </div>
+  <div class="mt-4 text-sm text-center space-y-1 text-neutral-500 dark:text-neutral-400">
+    <p><a href="{{ url_for('auth.reset_password_request') }}" class="hover:text-nba-500 transition-colors">Zaboravio si lozinku?</a></p>
+    <p><a href="{{ url_for('auth.register') }}" class="hover:text-nba-500 transition-colors">Registruj se</a></p>
   </div>
 </div>
 {% endblock %}

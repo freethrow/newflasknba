@@ -1,31 +1,68 @@
 {% extends "base.html" %}
 {% block title %}Admin panel{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Admin panel</h2>
-  <div>
-    <a href="{{ url_for('admin.log') }}" class="btn btn-sm btn-outline-secondary">Log</a>
-    <a href="{{ url_for('admin.inbox') }}" class="btn btn-sm btn-outline-secondary">Inbox</a>
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Admin panel</h1>
+  <div class="flex gap-2">
+    <a href="{{ url_for('admin.create_series') }}"
+       class="px-3 py-1.5 text-sm bg-nba-500 hover:bg-nba-600 text-white rounded-md transition-colors font-medium">
+      + Serija
+    </a>
+    <a href="{{ url_for('admin.log') }}"
+       class="px-3 py-1.5 text-sm border border-neutral-300 dark:border-neutral-700 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+      Log
+    </a>
+    <a href="{{ url_for('admin.inbox') }}"
+       class="px-3 py-1.5 text-sm border border-neutral-300 dark:border-neutral-700 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+      Inbox
+    </a>
   </div>
 </div>
 
-<h4>Serije</h4>
-<table class="table table-sm" id="series-table">
-  <thead><tr><th>Domaćin</th><th>Gost</th><th>Rezultat</th><th>Status</th><th>Akcije</th></tr></thead>
-  <tbody>
-  {% for s in series_list %}
-    {% include "partials/series_row.html" %}
-  {% endfor %}
-  </tbody>
-</table>
+<h2 class="font-semibold text-lg mb-3">Serije</h2>
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-8">
+  <table class="w-full text-sm" id="series-table">
+    <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left">Domaćin</th>
+        <th class="px-4 py-3 text-left">Gost</th>
+        <th class="px-4 py-3 text-left">Rezultat</th>
+        <th class="px-4 py-3 text-left">Status</th>
+        <th class="px-4 py-3 text-left">Akcije</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% for s in series_list %}
+        {% include "partials/series_row.html" %}
+      {% else %}
+      <tr><td colspan="5" class="px-4 py-4 text-center text-neutral-400">Nema serija. <a href="{{ url_for('admin.create_series') }}" class="text-nba-500 hover:underline">Dodaj seriju</a>.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-<h4 class="mt-4">Korisnici</h4>
-<table class="table table-sm">
-  <thead><tr><th>Korisnik</th><th>Poeni</th><th>Admin</th><th>Aktivan</th><th>Akcije</th></tr></thead>
-  <tbody>
-  {% for u in users %}
-    {% include "partials/user_row.html" %}
-  {% endfor %}
-  </tbody>
-</table>
+<h2 class="font-semibold text-lg mb-3">Korisnici</h2>
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left">Korisnik</th>
+        <th class="px-4 py-3 text-left">Email</th>
+        <th class="px-4 py-3 text-right">Poeni</th>
+        <th class="px-4 py-3 text-center">Admin</th>
+        <th class="px-4 py-3 text-center">Aktivan</th>
+        <th class="px-4 py-3 text-left">Akcije</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% for u in users %}
+        {% include "partials/user_row.html" %}
+      {% else %}
+      <tr><td colspan="6" class="px-4 py-4 text-center text-neutral-400">Nema korisnika.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 {% endblock %}

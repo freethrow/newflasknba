@@ -1,61 +1,39 @@
-from flask import abort, current_app, flash, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from ..extensions import csrf, db, limiter
 from ..models import Comment, Message, Prediction, Series, User
-from ..scoring import calculate_score
 from . import main
-from .forms import CommentForm, MessageForm, PredictionForm
+from .forms import PLAYIN_CHOICES, REGULAR_CHOICES, CommentForm, MessageForm, PredictionForm
 
 
 @main.route("/")
 def index():
-    season = request.args.get("season", current_app.config["CURRENT_SEASON"])
     users = db.session.execute(db.select(User)).scalars().all()
-    leaderboard = []
-    for u in users:
-        season_score = sum(
-            p.score_made or 0
-            for p in u.predictions
-            if p.series.season == season
-        )
-        leaderboard.append((u, season_score))
-    leaderboard.sort(key=lambda x: x[1], reverse=True)
-    seasons = db.session.execute(db.select(Series.season).distinct()).scalars().all()
-    return render_template(
-        "main/index.html",
-        leaderboard=leaderboard,
-        seasons=sorted(seasons, reverse=True),
-        current_season=season,
+    leaderboard = sorted(
+        [(u, u.total) for u in users],
+        key=lambda x: x[1],
+        reverse=True,
     )
+    return render_template("main/index.html", leaderboard=leaderboard)
 
 
 @main.route("/leaderboard/fragment")
 @limiter.limit("10 per minute")
 def leaderboard_fragment():
-    season = request.args.get("season", current_app.config["CURRENT_SEASON"])
     users = db.session.execute(db.select(User)).scalars().all()
-    leaderboard = []
-    for u in users:
-        season_score = sum(
-            p.score_made or 0
-            for p in u.predictions
-            if p.series.season == season
-        )
-        leaderboard.append((u, season_score))
-    leaderboard.sort(key=lambda x: x[1], reverse=True)
-    return render_template(
-        "partials/leaderboard_rows.html",
-        leaderboard=leaderboard,
-        current_season=season,
+    leaderboard = sorted(
+        [(u, u.total) for u in users],
+        key=lambda x: x[1],
+        reverse=True,
     )
+    return render_template("partials/leaderboard_rows.html", leaderboard=leaderboard)
 
 
 @main.route("/series")
 def series_list():
-    season = request.args.get("season", current_app.config["CURRENT_SEASON"])
     all_series = db.session.execute(
-        db.select(Series).filter_by(season=season).order_by(Series.id)
+        db.select(Series).order_by(Series.id)
     ).scalars().all()
     user_preds = {}
     if current_user.is_authenticated:
@@ -70,10 +48,17 @@ def series_list():
     )
 
 
+def _make_pred_form(series):
+    """Return a PredictionForm with choices set for this series type."""
+    form = PredictionForm()
+    form.predicted.choices = PLAYIN_CHOICES if series.is_playin else REGULAR_CHOICES
+    return form
+
+
 @main.route("/series/<int:series_id>", methods=["GET", "POST"])
 def series_detail(series_id: int):
     series = db.get_or_404(Series, series_id)
-    pred_form = PredictionForm()
+    pred_form = _make_pred_form(series)
     comment_form = CommentForm()
 
     existing_pred = None
@@ -89,13 +74,22 @@ def series_detail(series_id: int):
             if existing_pred:
                 existing_pred.predicted = pred_form.predicted.data
             else:
-                pred = Prediction(
+                existing_pred = Prediction(
                     series=series,
                     user=current_user,
                     predicted=pred_form.predicted.data,
                 )
-                db.session.add(pred)
+                db.session.add(existing_pred)
             db.session.commit()
+            # HTMX: return just the prediction section partial
+            if request.headers.get("HX-Request"):
+                return render_template(
+                    "partials/prediction_section.html",
+                    series=series,
+                    pred_form=_make_pred_form(series),
+                    existing_pred=existing_pred,
+                    saved=True,
+                )
             flash("Predikcija sačuvana.", "success")
         else:
             flash("Serija je zatvorena za predikcije.", "warning")
@@ -149,6 +143,23 @@ def validate_prediction():
     return '<span class="text-xs text-red-600">Format mora biti X:Y npr. 4:2</span>'
 
 
+@main.route("/player/<username>")
+@login_required
+def player_profile(username: str):
+    user = db.session.execute(
+        db.select(User).filter_by(username=username)
+    ).scalar_one_or_none()
+    if user is None:
+        abort(404)
+    # Only show predictions for closed series that have a final result
+    preds = [
+        p for p in user.predictions
+        if not p.series.open and p.series.result
+    ]
+    preds.sort(key=lambda p: p.series.id)
+    return render_template("main/player_profile.html", profile_user=user, predictions=preds)
+
+
 @main.route("/my-predictions")
 @login_required
 def my_predictions():
@@ -178,21 +189,21 @@ def messages():
 def send_message():
     if current_user.is_admin:
         abort(403)
-    admin = db.session.execute(
+    admins = db.session.execute(
         db.select(User).filter_by(is_admin=True)
-    ).scalar_one_or_none()
-    if not admin:
+    ).scalars().all()
+    if not admins:
         flash("Nema dostupnog admina.", "warning")
         return redirect(url_for("main.index"))
     form = MessageForm()
     if form.validate_on_submit():
-        msg = Message(
-            sender=current_user,
-            recipient=admin,
-            body=form.body.data,
-        )
-        db.session.add(msg)
+        for admin in admins:
+            db.session.add(Message(
+                sender=current_user,
+                recipient=admin,
+                body=form.body.data,
+            ))
         db.session.commit()
         flash("Poruka poslata.", "success")
         return redirect(url_for("main.index"))
-    return render_template("main/send_message.html", form=form, admin=admin)
+    return render_template("main/send_message.html", form=form)

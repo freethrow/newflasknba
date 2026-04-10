@@ -9,3 +9,4 @@ faker
 resend
 flask-limiter
 itsdangerous>=2.1
+email-validator

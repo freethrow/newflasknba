@@ -1,22 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Predikcije — {{ series.home }} vs {{ series.away }}{% endblock %}
 {% block content %}
-<h2>Predikcije: {{ series.home }} vs {{ series.away }}
-  {% if series.is_playin %}<span class="badge badge-info">Play-in</span>{% endif %}
-</h2>
-<form method="post" action="{{ url_for('admin.recalculate_series', series_id=series.id) }}">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <button class="btn btn-warning mb-3">Ponovo izračunaj poene za ovu seriju</button>
-</form>
-<table class="table table-sm">
-  <thead><tr><th>Korisnik</th><th>Predikcija</th><th>Poeni</th><th>Akcija</th></tr></thead>
-  <tbody>
-  {% for pred in predictions %}
-    {% include "partials/prediction_row.html" %}
-  {% else %}
-  <tr><td colspan="4" class="text-muted">Nema predikcija.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
-<a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Nazad</a>
+
+<div class="flex items-center gap-3 mb-6 flex-wrap">
+  <h1 class="text-xl font-bold">
+    Predikcije: {{ series.home }} vs {{ series.away }}
+    {% if series.is_playin %}
+      <span class="text-sm px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-medium">Play-in</span>
+    {% endif %}
+  </h1>
+  <form method="post" action="{{ url_for('admin.recalculate_series', series_id=series.id) }}" class="ml-auto">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="px-3 py-1.5 text-sm bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200 rounded-md hover:bg-yellow-200 dark:hover:bg-yellow-900/60 transition-colors font-medium">
+      Ponovo izračunaj poene
+    </button>
+  </form>
+</div>
+
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-4">
+  <table class="w-full text-sm">
+    <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left">Korisnik</th>
+        <th class="px-4 py-3 text-left">Predikcija</th>
+        <th class="px-4 py-3 text-left">Poeni</th>
+        <th class="px-4 py-3 text-left"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% for user, pred in rows %}
+        {% if pred %}
+          {% include "partials/prediction_row.html" %}
+        {% else %}
+          {% include "partials/prediction_new_row.html" %}
+        {% endif %}
+      {% else %}
+      <tr><td colspan="4" class="px-4 py-4 text-center text-neutral-400">Nema korisnika.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<a href="{{ url_for('admin.dashboard') }}"
+   class="text-sm text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
+  ← Nazad na admin panel
+</a>
+
 {% endblock %}

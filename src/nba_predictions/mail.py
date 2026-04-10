@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 
-def send_password_reset(to_username: str, reset_url: str) -> None:
+def send_password_reset(to_email: str, reset_url: str) -> None:
     """Send a password reset link via Resend."""
     import resend
 
@@ -13,8 +13,8 @@ def send_password_reset(to_username: str, reset_url: str) -> None:
     resend.Emails.send(
         {
             "from": mail_from,
-            "to": to_username,
-            "subject": "Resetuj lozinku",
+            "to": to_email,
+            "subject": "Resetuj lozinku — NBA Predikcije",
             "html": (
                 f"<p>Klikni <a href='{reset_url}'>ovde</a> da resetuješ lozinku.</p>"
                 "<p>Link važi 1 sat.</p>"

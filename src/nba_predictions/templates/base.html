@@ -1,38 +1,126 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="sr" class="">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}NBA Predikcije{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var theme = localStorage.getItem('theme');
+      if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="{{ url_for('main.index') }}">NBA Predikcije</a>
-  <div class="navbar-nav ml-auto">
-    <a class="nav-link" href="{{ url_for('main.series_list') }}">Serije</a>
-    {% if current_user.is_authenticated %}
-      <a class="nav-link" href="{{ url_for('main.my_predictions') }}">Moje predikcije</a>
-      <a class="nav-link" href="{{ url_for('main.messages') }}">Poruke</a>
-      {% if current_user.is_admin %}
-        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin</a>
-      {% endif %}
-      <a class="nav-link" href="{{ url_for('auth.logout') }}">Odjavi se ({{ current_user.username }})</a>
-    {% else %}
-      <a class="nav-link" href="{{ url_for('auth.login') }}">Prijavi se</a>
-      <a class="nav-link" href="{{ url_for('auth.register') }}">Registruj se</a>
-    {% endif %}
-  </div>
-</nav>
-<div class="container mt-4">
+<body class="bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 shadow-sm">
+    <nav class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="{{ url_for('main.index') }}" class="font-bold text-lg text-nba-500 tracking-tight">NBA Predikcije</a>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="{{ url_for('main.series_list') }}" class="hover:text-nba-500 transition-colors">Serije</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('main.my_predictions') }}" class="hover:text-nba-500 transition-colors">Moje predikcije</a>
+          {% if not current_user.is_admin %}
+            <a href="{{ url_for('main.messages') }}" class="hover:text-nba-500 transition-colors">Poruke</a>
+          {% endif %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold">Admin</a>
+          {% endif %}
+          <span class="text-neutral-500 dark:text-neutral-400">{{ current_user.username }}</span>
+          <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">
+            Odjavi se
+          </a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="hover:text-nba-500 transition-colors">Prijavi se</a>
+          <a href="{{ url_for('auth.register') }}" class="bg-nba-500 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-nba-600 transition-colors">Registruj se</a>
+        {% endif %}
+        <!-- Dark mode toggle -->
+        <button id="theme-toggle" class="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Flash messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
+    {% if messages %}
+      <div class="max-w-5xl mx-auto px-4 pt-4 w-full space-y-2">
+        {% for category, message in messages %}
+          {% set color = {
+            'success': 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200',
+            'danger':  'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200',
+            'warning': 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200',
+            'info':    'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
+          }.get(category, 'bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300') %}
+          <div class="border rounded-md px-4 py-3 text-sm {{ color }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
   {% endwith %}
-  {% block content %}{% endblock %}
-</div>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Main content -->
+  <main class="flex-1 max-w-5xl mx-auto px-4 py-6 w-full">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-t border-neutral-200 dark:border-neutral-800 py-4 text-center text-xs text-neutral-400">
+    NBA Predikcije
+  </footer>
+
+  <!-- OOB toast target — HTMX swaps content in here from partial responses -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
+  <script>
+    document.addEventListener('htmx:configRequest', function (e) {
+      e.detail.headers['X-CSRFToken'] = '{{ csrf_token() }}';
+    });
+    function showToast(message, category) {
+      var colors = {
+        success: 'bg-green-500 text-white',
+        warning: 'bg-yellow-400 text-yellow-900',
+        danger:  'bg-red-500 text-white',
+      };
+      var el = document.createElement('div');
+      el.className = 'pointer-events-auto px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium ' +
+                     (colors[category] || 'bg-neutral-800 text-white');
+      el.textContent = message;
+      document.getElementById('toast-container').appendChild(el);
+      setTimeout(function () {
+        el.style.transition = 'opacity 0.5s';
+        el.style.opacity = '0';
+        setTimeout(function () { el.remove(); }, 500);
+      }, 3000);
+    }
+
+    document.addEventListener('showToast', function (e) {
+      showToast(e.detail.message, e.detail.category);
+    });
+
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      var html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+  </script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

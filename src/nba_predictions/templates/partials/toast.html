@@ -1,0 +1,14 @@
+{# OOB toast — append into #toast-container alongside any HTMX row swap.
+   Usage: render two templates in a single response string using render_template + concatenation,
+   or render this partial and append it to the row HTML in the route. #}
+<div hx-swap-oob="beforeend:#toast-container">
+  <div data-autohide="3000"
+       class="pointer-events-auto px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium
+              {% if category == 'success' %}bg-green-500 text-white
+              {% elif category == 'warning' %}bg-yellow-400 text-yellow-900
+              {% elif category == 'danger' %}bg-red-500 text-white
+              {% else %}bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900
+              {% endif %}">
+    {{ message }}
+  </div>
+</div>

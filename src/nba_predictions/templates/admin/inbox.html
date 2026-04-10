@@ -1,25 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Admin inbox{% endblock %}
 {% block content %}
-<h2>Inbox</h2>
+
+<h1 class="text-2xl font-bold mb-6">Inbox</h1>
+
 {% for m in messages %}
-<div class="card mb-2">
-  <div class="card-body">
-    <strong>{{ m.sender.username }}</strong>
-    <small class="text-muted ml-2">{{ m.created.strftime('%d.%m.%Y %H:%M') }}</small>
-    <p class="mt-1 mb-2">{{ m.body }}</p>
-    <form method="post" action="{{ url_for('admin.send_to_user', user_id=m.sender.id) }}">
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 mb-3">
+  <div class="flex items-baseline gap-2 mb-2">
+    <span class="font-semibold">{{ m.sender.username }}</span>
+    <span class="text-xs text-neutral-400">{{ m.created.strftime('%d.%m.%Y %H:%M') }}</span>
+  </div>
+  <p class="text-sm mb-3">{{ m.body }}</p>
+  <div id="reply-{{ m.id }}">
+    <form hx-post="{{ url_for('admin.send_to_user', user_id=m.sender.id) }}"
+          hx-target="#reply-{{ m.id }}"
+          hx-swap="innerHTML">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="input-group">
-        <textarea name="body" class="form-control" rows="2" placeholder="Odgovor..."></textarea>
-        <div class="input-group-append">
-          <button class="btn btn-primary">Odgovori</button>
-        </div>
+      <div class="flex gap-2">
+        <textarea name="body" rows="2"
+                  class="flex-1 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-nba-500"
+                  placeholder="Odgovor..."></textarea>
+        <button class="self-end px-3 py-2 bg-nba-500 hover:bg-nba-600 text-white text-sm font-medium rounded-md transition-colors">
+          Odgovori
+        </button>
       </div>
     </form>
   </div>
 </div>
 {% else %}
-<p class="text-muted">Nema poruka.</p>
+<p class="text-neutral-400 dark:text-neutral-500">Nema poruka.</p>
 {% endfor %}
+
 {% endblock %}

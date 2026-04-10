@@ -1,9 +1,47 @@
-<tr id="series-row-{{ s.id }}">
-  <td>{{ s.home }}</td>
-  <td>{{ s.away }}</td>
-  <td>{{ s.result or '—' }}</td>
-  <td>{% if s.is_playin %}<span class="badge badge-info">Play-in</span>{% endif %} {% if s.open %}Otvorena{% else %}Zatvorena{% endif %}</td>
-  <td>
-    <a href="{{ url_for('admin.series_predictions', series_id=s.id) }}" class="btn btn-sm btn-info">Predikcije</a>
+<tr id="series-row-{{ s.id }}" class="hover:bg-neutral-50 dark:hover:bg-neutral-900">
+  <td class="px-4 py-2 font-medium">{{ s.home }}</td>
+  <td class="px-4 py-2 font-medium">{{ s.away }}</td>
+
+  <td class="px-4 py-2">
+    <select name="result" form="series-form-{{ s.id }}"
+            class="font-mono text-sm border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-nba-500">
+      <option value="">—</option>
+      {% if s.is_playin %}
+        {% for r in ["1:0", "0:1"] %}
+          <option value="{{ r }}" {% if s.result == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      {% else %}
+        {% for r in ["4:0","4:1","4:2","4:3","3:4","2:4","1:4","0:4"] %}
+          <option value="{{ r }}" {% if s.result == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      {% endif %}
+    </select>
+  </td>
+
+  <td class="px-4 py-2">
+    <select name="open" form="series-form-{{ s.id }}"
+            class="text-xs border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-nba-500">
+      <option value="true"  {% if s.open %}selected{% endif %}>Otvorena</option>
+      <option value="false" {% if not s.open %}selected{% endif %}>Zatvorena</option>
+    </select>
+  </td>
+
+  <td class="px-4 py-2">
+    <div class="flex items-center gap-3">
+      <form id="series-form-{{ s.id }}"
+            hx-post="{{ url_for('admin.update_series', series_id=s.id) }}"
+            hx-target="#series-row-{{ s.id }}"
+            hx-swap="outerHTML">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit"
+                class="text-xs bg-nba-500 hover:bg-nba-600 text-white px-2.5 py-1 rounded transition-colors font-medium">
+          Sačuvaj
+        </button>
+      </form>
+      <a href="{{ url_for('admin.series_predictions', series_id=s.id) }}"
+         class="text-xs text-nba-500 hover:text-nba-600 transition-colors font-medium">
+        Predikcije
+      </a>
+    </div>
   </td>
 </tr>

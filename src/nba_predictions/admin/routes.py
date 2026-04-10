@@ -6,7 +6,7 @@ from ..models import AdminLog, Comment, Message, Prediction, Series, User
 from ..scoring import calculate_score
 from . import admin
 from .decorators import admin_required
-from .forms import MessageAdminForm, PredictionAdminForm, SeriesForm
+from .forms import MessageAdminForm, SeriesForm
 
 
 def _log(action: str, target_id: int | None, before: str, after: str) -> None:
@@ -33,18 +33,73 @@ def dashboard():
     )
 
 
+@admin.route("/series/new", methods=["GET", "POST"])
+@login_required
+@admin_required
+def create_series():
+    form = SeriesForm()
+    if form.validate_on_submit():
+        series = Series(
+            home=form.home.data,
+            away=form.away.data,
+            open=True,
+            is_playin=form.is_playin.data,
+        )
+        db.session.add(series)
+        _log("create_series", None, "", f"{series.home} vs {series.away}")
+        db.session.commit()
+        flash("Serija kreirana.", "success")
+        return redirect(url_for("admin.dashboard"))
+    return render_template("admin/series_form.html", form=form)
+
+
 @admin.route("/series/<int:series_id>", methods=["POST"])
 @login_required
 @admin_required
 def update_series(series_id: int):
     series = db.get_or_404(Series, series_id)
+    was_open = series.open
+    old_result = series.result
     before = f"result={series.result}, open={series.open}"
     series.result = request.form.get("result", series.result) or None
     series.open = request.form.get("open") == "true"
     after = f"result={series.result}, open={series.open}"
     _log("update_series", series.id, before, after)
     db.session.commit()
-    return render_template("partials/series_row.html", s=series)
+
+    # Auto-recalculate scores whenever result is set or changed
+    toast_msg = ""
+    toast_cat = "success"
+    if series.result and series.result != old_result:
+        preds = db.session.execute(
+            db.select(Prediction).filter_by(series_id=series.id)
+        ).scalars().all()
+        for pred in preds:
+            if pred.predicted:
+                pred.score_made = calculate_score(
+                    pred.predicted, series.result, is_playin=series.is_playin
+                )
+        db.session.commit()
+        _log("recalculate_series", series.id, "", f"{len(preds)} predictions updated automatically")
+        toast_msg = f"Rezultat sačuvan. {len(preds)} predikcija ažurirano."
+        toast_cat = "success"
+    elif series.open != was_open:
+        if series.open:
+            toast_msg = "Serija otvorena za predikcije."
+            toast_cat = "success"
+        else:
+            toast_msg = "Serija zatvorena za predikcije."
+            toast_cat = "warning"
+
+    from flask import Response
+    import json
+    row = render_template("partials/series_row.html", s=series)
+    resp = Response(row, content_type="text/html")
+    if toast_msg:
+        resp.headers["HX-Trigger"] = json.dumps({
+            "showToast": {"message": toast_msg, "category": toast_cat}
+        })
+    return resp
 
 
 @admin.route("/series/<int:series_id>/predictions")
@@ -52,11 +107,19 @@ def update_series(series_id: int):
 @admin_required
 def series_predictions(series_id: int):
     series = db.get_or_404(Series, series_id)
-    preds = db.session.execute(
-        db.select(Prediction).filter_by(series_id=series_id)
+    all_users = db.session.execute(
+        db.select(User).filter_by(is_admin=False).order_by(User.username)
     ).scalars().all()
+    existing = {
+        p.user_id: p
+        for p in db.session.execute(
+            db.select(Prediction).filter_by(series_id=series_id)
+        ).scalars().all()
+    }
+    # list of (user, pred_or_None)
+    rows = [(u, existing.get(u.id)) for u in all_users]
     return render_template(
-        "admin/series_predictions.html", series=series, predictions=preds
+        "admin/series_predictions.html", series=series, rows=rows
     )
 
 
@@ -72,6 +135,26 @@ def update_prediction(series_id: int, pred_id: int):
         pred.score_made = int(request.form["score_made"])
     after = f"predicted={pred.predicted}, score_made={pred.score_made}"
     _log("update_prediction", pred.id, before, after)
+    db.session.commit()
+    return render_template("partials/prediction_row.html", pred=pred)
+
+
+@admin.route("/series/<int:series_id>/predictions/new/<int:user_id>", methods=["POST"])
+@login_required
+@admin_required
+def create_prediction(series_id: int, user_id: int):
+    series = db.get_or_404(Series, series_id)
+    user = db.get_or_404(User, user_id)
+    predicted = request.form.get("predicted", "")
+    score_made = int(request.form.get("score_made") or 0)
+    pred = Prediction(
+        series_id=series_id,
+        user_id=user_id,
+        predicted=predicted,
+        score_made=score_made,
+    )
+    db.session.add(pred)
+    _log("create_prediction", None, "", f"series={series.id} user={user.username} predicted={predicted}")
     db.session.commit()
     return render_template("partials/prediction_row.html", pred=pred)
 
@@ -101,10 +184,12 @@ def recalculate_series(series_id: int):
 @admin_required
 def update_user(user_id: int):
     user = db.get_or_404(User, user_id)
-    before = f"is_admin={user.is_admin}, is_active={user.is_active}"
+    before = f"email={user.email}, is_admin={user.is_admin}, is_active={user.is_active}"
+    new_email = request.form.get("email", "").strip() or None
+    user.email = new_email
     user.is_admin = request.form.get("is_admin") == "true"
     user.is_active = request.form.get("is_active") == "true"
-    after = f"is_admin={user.is_admin}, is_active={user.is_active}"
+    after = f"email={user.email}, is_admin={user.is_admin}, is_active={user.is_active}"
     _log("update_user", user.id, before, after)
     db.session.commit()
     return render_template("partials/user_row.html", u=user)
@@ -170,8 +255,14 @@ def send_to_user(user_id: int):
         db.session.add(msg)
         _log("send_message", user_id, "", f"to={recipient.username}")
         db.session.commit()
-        return render_template("partials/message_row.html", recipient=recipient, sent=True)
-    return render_template("partials/message_row.html", recipient=recipient)
+        if request.headers.get("HX-Request"):
+            return render_template("partials/reply_sent.html", recipient=recipient)
+        flash(f"Poruka poslata korisniku {recipient.username}.", "success")
+        return redirect(url_for("admin.inbox"))
+    if request.headers.get("HX-Request"):
+        flash("Poruka ne može biti prazna.", "danger")
+        return "", 422
+    return redirect(url_for("admin.inbox"))
 
 
 @admin.route("/comments/<int:comment_id>", methods=["POST"])

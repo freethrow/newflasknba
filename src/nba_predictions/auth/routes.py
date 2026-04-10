@@ -5,7 +5,12 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from ..extensions import db, limiter
 from ..models import User
 from . import auth
-from .forms import LoginForm, PasswordResetForm, PasswordResetRequestForm, RegistrationForm
+from .forms import (
+    LoginForm,
+    PasswordResetForm,
+    PasswordResetRequestForm,
+    RegistrationForm,
+)
 
 
 def _make_reset_token(username: str) -> str:
@@ -52,7 +57,7 @@ def register():
         return redirect(url_for("main.index"))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data)
+        user = User(username=form.username.data, email=form.email.data or None)
         user.password = form.password.data
         db.session.add(user)
         db.session.commit()
@@ -68,14 +73,20 @@ def reset_password_request():
         user = db.session.execute(
             db.select(User).filter_by(username=form.username.data)
         ).scalar_one_or_none()
-        if user:
+        if user and not user.email:
+            flash("Ovaj nalog nema email adresu. Kontaktuj admina.", "warning")
+            return redirect(url_for("auth.login"))
+        if user and user.email:
             token = _make_reset_token(user.username)
             reset_url = url_for("auth.reset_password", token=token, _external=True)
             try:
                 from ..mail import send_password_reset
-                send_password_reset(user.username, reset_url)
-            except Exception:
+
+                send_password_reset(user.email, reset_url)
+            except Exception as e:
                 current_app.logger.exception("Failed to send reset email")
+                if current_app.debug:
+                    raise
         flash("Ako korisnik postoji, poslan je link za reset.", "info")
         return redirect(url_for("auth.login"))
     return render_template("auth/reset_request.html", form=form)

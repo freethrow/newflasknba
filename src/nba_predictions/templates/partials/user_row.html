@@ -1,10 +1,47 @@
-<tr id="user-row-{{ u.id }}">
-  <td>{{ u.username }}</td>
-  <td>{{ u.total }}</td>
-  <td>{% if u.is_admin %}<span class="badge badge-warning">Admin</span>{% else %}Ne{% endif %}</td>
-  <td>{% if u.is_active %}<span class="badge badge-success">Da</span>{% else %}<span class="badge badge-danger">Ne</span>{% endif %}</td>
-  <td>
-    <a href="{{ url_for('admin.user_predictions', user_id=u.id) }}" class="btn btn-sm btn-info">Predikcije</a>
-    <a href="{{ url_for('admin.compose_message', user_id=u.id) }}" class="btn btn-sm btn-secondary">Poruka</a>
+<tr id="user-row-{{ u.id }}" class="hover:bg-neutral-50 dark:hover:bg-neutral-900">
+  <td class="px-4 py-1.5 font-medium text-sm">{{ u.username }}</td>
+
+  <td class="px-4 py-1.5">
+    <input type="email" name="email" form="user-form-{{ u.id }}"
+           value="{{ u.email or '' }}"
+           placeholder="email@..."
+           class="text-sm border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-2 py-1 w-44 focus:outline-none focus:ring-2 focus:ring-nba-500">
+  </td>
+
+  <td class="px-4 py-1.5 text-right font-mono text-sm">{{ u.total }}</td>
+
+  <td class="px-4 py-1.5 text-center">
+    <select name="is_admin" form="user-form-{{ u.id }}"
+            class="text-xs border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-nba-500">
+      <option value="false" {% if not u.is_admin %}selected{% endif %}>Ne</option>
+      <option value="true"  {% if u.is_admin %}selected{% endif %}>Da</option>
+    </select>
+  </td>
+
+  <td class="px-4 py-1.5 text-center">
+    <select name="is_active" form="user-form-{{ u.id }}"
+            class="text-xs border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-nba-500">
+      <option value="true"  {% if u.is_active %}selected{% endif %}>Da</option>
+      <option value="false" {% if not u.is_active %}selected{% endif %}>Ne</option>
+    </select>
+  </td>
+
+  <td class="px-4 py-1.5">
+    <div class="flex items-center gap-3">
+      <form id="user-form-{{ u.id }}"
+            hx-post="{{ url_for('admin.update_user', user_id=u.id) }}"
+            hx-target="#user-row-{{ u.id }}"
+            hx-swap="outerHTML">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit"
+                class="text-xs bg-nba-500 hover:bg-nba-600 text-white px-2.5 py-1 rounded transition-colors font-medium">
+          Sačuvaj
+        </button>
+      </form>
+      <a href="{{ url_for('admin.user_predictions', user_id=u.id) }}"
+         class="text-xs text-nba-500 hover:text-nba-600 transition-colors font-medium">Predikcije</a>
+      <a href="{{ url_for('admin.compose_message', user_id=u.id) }}"
+         class="text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors font-medium">Poruka</a>
+    </div>
   </td>
 </tr>

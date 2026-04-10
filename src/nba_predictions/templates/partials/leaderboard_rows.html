@@ -1,7 +1,19 @@
 {% for u, pts in leaderboard %}
+<tr class="hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+  <td class="px-4 py-3 font-mono text-neutral-400 dark:text-neutral-500">
+    {% if loop.index == 1 %}🥇
+    {% elif loop.index == 2 %}🥈
+    {% elif loop.index == 3 %}🥉
+    {% else %}{{ loop.index }}{% endif %}
+  </td>
+  <td class="px-4 py-3 font-medium">
+    <a href="{{ url_for('main.player_profile', username=u.username) }}"
+       class="hover:text-nba-500 transition-colors">{{ u.username }}</a>
+  </td>
+  <td class="px-4 py-3 text-right font-mono font-semibold text-nba-500">{{ pts }}</td>
+</tr>
+{% else %}
 <tr>
-  <td>{{ loop.index }}</td>
-  <td>{{ u.username }}</td>
-  <td>{{ pts }}</td>
+  <td colspan="3" class="px-4 py-6 text-center text-neutral-400 dark:text-neutral-500">Nema korisnika.</td>
 </tr>
 {% endfor %}

@@ -1,0 +1,38 @@
+<tr id="pred-new-{{ user.id }}" class="hover:bg-neutral-50 dark:hover:bg-neutral-900 bg-neutral-50/50 dark:bg-neutral-900/50">
+  <td class="px-4 py-1.5 font-medium text-sm text-neutral-400">{{ user.username }}</td>
+
+  <td class="px-4 py-1.5">
+    {% set is_playin = series.is_playin %}
+    <select name="predicted" form="pred-new-form-{{ user.id }}"
+            class="font-mono text-sm border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-nba-500">
+      {% if is_playin %}
+        {% for v in ['1:0', '0:1'] %}
+          <option value="{{ v }}">{{ v }}</option>
+        {% endfor %}
+      {% else %}
+        {% for v in ['4:0', '4:1', '4:2', '4:3', '3:4', '2:4', '1:4', '0:4'] %}
+          <option value="{{ v }}">{{ v }}</option>
+        {% endfor %}
+      {% endif %}
+    </select>
+  </td>
+
+  <td class="px-4 py-1.5">
+    <input type="number" name="score_made" form="pred-new-form-{{ user.id }}"
+           value="0"
+           class="font-mono text-sm border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-2 py-1 w-16 focus:outline-none focus:ring-2 focus:ring-nba-500">
+  </td>
+
+  <td class="px-4 py-1.5">
+    <form id="pred-new-form-{{ user.id }}"
+          hx-post="{{ url_for('admin.create_prediction', series_id=series.id, user_id=user.id) }}"
+          hx-target="#pred-new-{{ user.id }}"
+          hx-swap="outerHTML">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit"
+              class="text-xs bg-neutral-200 dark:bg-neutral-700 hover:bg-nba-500 hover:text-white text-neutral-600 dark:text-neutral-300 px-2.5 py-1 rounded transition-colors font-medium">
+        Dodaj
+      </button>
+    </form>
+  </td>
+</tr>

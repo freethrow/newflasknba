@@ -1,6 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, EqualTo, Length, ValidationError
+from wtforms import BooleanField, EmailField, PasswordField, StringField, SubmitField
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    Length,
+    Optional,
+    ValidationError,
+)
 
 from ..extensions import db
 
@@ -14,6 +21,9 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     username = StringField("Korisničko ime", validators=[DataRequired(), Length(3, 64)])
+    email = EmailField(
+        "Email (za reset lozinke)", validators=[Optional(), Email(), Length(max=120)]
+    )
     password = PasswordField("Lozinka", validators=[DataRequired(), Length(min=6)])
     password2 = PasswordField(
         "Potvrdi lozinku", validators=[DataRequired(), EqualTo("password")]
@@ -22,10 +32,21 @@ class RegistrationForm(FlaskForm):
 
     def validate_username(self, field):
         from ..models import User
+
         if db.session.execute(
             db.select(User).filter_by(username=field.data)
         ).scalar_one_or_none():
             raise ValidationError("Korisničko ime je zauzeto.")
+
+    def validate_email(self, field):
+        if not field.data:
+            return
+        from ..models import User
+
+        if db.session.execute(
+            db.select(User).filter_by(email=field.data)
+        ).scalar_one_or_none():
+            raise ValidationError("Email je već zauzet.")
 
 
 class PasswordResetRequestForm(FlaskForm):

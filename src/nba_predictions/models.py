@@ -28,6 +28,7 @@ class User(UserMixin, db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    email: Mapped[Optional[str]] = mapped_column(String(120), unique=True, index=True, nullable=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(256))
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -89,7 +90,6 @@ class Series(db.Model):
     away: Mapped[str] = mapped_column(Text)
     open: Mapped[bool] = mapped_column(Boolean, default=True)
     result: Mapped[Optional[str]] = mapped_column(String)
-    season: Mapped[str] = mapped_column(String(10), index=True, default="2026")
     is_playin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     predictions: Mapped[list[Prediction]] = relationship(

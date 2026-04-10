@@ -1,8 +1,43 @@
-<tr id="pred-row-{{ pred.id }}">
-  <td>{% if pred.user is defined and pred.user %}{{ pred.user.username }}{% elif pred.series is defined and pred.series %}{{ pred.series.home }} vs {{ pred.series.away }}{% endif %}</td>
-  <td>{{ pred.predicted or '—' }}</td>
-  <td>{{ pred.score_made }}</td>
-  <td>
-    <a href="{{ url_for('admin.update_prediction', series_id=pred.series_id, pred_id=pred.id) }}" class="btn btn-sm btn-warning">Uredi</a>
+<tr id="pred-row-{{ pred.id }}" class="hover:bg-neutral-50 dark:hover:bg-neutral-900">
+  <td class="px-4 py-1.5 font-medium text-sm">
+    {% if pred.user is defined and pred.user %}{{ pred.user.username }}
+    {% elif pred.series is defined and pred.series %}{{ pred.series.home }} vs {{ pred.series.away }}
+    {% endif %}
+  </td>
+
+  <td class="px-4 py-1.5">
+    {% set is_playin = pred.series.is_playin if pred.series else false %}
+    <select name="predicted" form="pred-form-{{ pred.id }}"
+            class="font-mono text-sm border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-nba-500">
+      {% if is_playin %}
+        {% for v in ['1:0', '0:1'] %}
+          <option value="{{ v }}" {% if pred.predicted == v %}selected{% endif %}>{{ v }}</option>
+        {% endfor %}
+      {% else %}
+        {% for v in ['4:0', '4:1', '4:2', '4:3', '3:4', '2:4', '1:4', '0:4'] %}
+          <option value="{{ v }}" {% if pred.predicted == v %}selected{% endif %}>{{ v }}</option>
+        {% endfor %}
+      {% endif %}
+    </select>
+  </td>
+
+  <td class="px-4 py-1.5">
+    <input type="number" name="score_made" form="pred-form-{{ pred.id }}"
+           value="{{ pred.score_made }}"
+           class="font-mono text-sm border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded px-2 py-1 w-16 focus:outline-none focus:ring-2 focus:ring-nba-500">
+  </td>
+
+  <td class="px-4 py-1.5">
+    {# Form lives inside this td — all controls above link to it via form="..." #}
+    <form id="pred-form-{{ pred.id }}"
+          hx-post="{{ url_for('admin.update_prediction', series_id=pred.series_id, pred_id=pred.id) }}"
+          hx-target="#pred-row-{{ pred.id }}"
+          hx-swap="outerHTML">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit"
+              class="text-xs bg-nba-500 hover:bg-nba-600 text-white px-2.5 py-1 rounded transition-colors font-medium">
+        Sačuvaj
+      </button>
+    </form>
   </td>
 </tr>
