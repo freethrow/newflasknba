@@ -22,6 +22,10 @@ instance/*
 # Node (Tailwind)
 node_modules/
 
+# Tailwind standalone binary (download separately, see DEPLOYMENT.md)
+tailwindcss
+tailwindcss.exe
+
 # IDE
 .vscode/
 .idea/
