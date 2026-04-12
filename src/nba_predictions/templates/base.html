@@ -23,7 +23,9 @@
   <header class="sticky top-0 z-50 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 shadow-sm">
     <nav class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
       <a href="{{ url_for('main.index') }}" class="font-bold text-lg text-nba-500 tracking-tight">NBA Predikcije</a>
-      <div class="flex items-center gap-4 text-sm">
+
+      <!-- Desktop nav -->
+      <div class="hidden sm:flex items-center gap-4 text-sm">
         <a href="{{ url_for('main.series_list') }}" class="hover:text-nba-500 transition-colors">Serije</a>
         {% if current_user.is_authenticated %}
           <a href="{{ url_for('main.my_predictions') }}" class="hover:text-nba-500 transition-colors">Moje predikcije</a>
@@ -34,15 +36,13 @@
             <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold">Admin</a>
           {% endif %}
           <span class="text-neutral-500 dark:text-neutral-400">{{ current_user.username }}</span>
-          <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">
-            Odjavi se
-          </a>
+          <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">Odjavi se</a>
         {% else %}
           <a href="{{ url_for('auth.login') }}" class="hover:text-nba-500 transition-colors">Prijavi se</a>
           <a href="{{ url_for('auth.register') }}" class="bg-nba-500 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-nba-600 transition-colors">Registruj se</a>
         {% endif %}
         <!-- Dark mode toggle -->
-        <button id="theme-toggle" class="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" aria-label="Toggle dark mode">
+        <button class="theme-toggle p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" aria-label="Toggle dark mode">
           <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
@@ -51,7 +51,47 @@
           </svg>
         </button>
       </div>
+
+      <!-- Mobile: dark mode + hamburger -->
+      <div class="flex sm:hidden items-center gap-2">
+        <button class="theme-toggle p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" aria-label="Toggle dark mode">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+        <button id="hamburger" class="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
     </nav>
+
+    <!-- Mobile menu (hidden by default) -->
+    <div id="mobile-menu" class="hidden sm:hidden border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col gap-3 text-sm">
+        <a href="{{ url_for('main.series_list') }}" class="hover:text-nba-500 transition-colors py-1">Serije</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('main.my_predictions') }}" class="hover:text-nba-500 transition-colors py-1">Moje predikcije</a>
+          {% if not current_user.is_admin %}
+            <a href="{{ url_for('main.messages') }}" class="hover:text-nba-500 transition-colors py-1">Poruke</a>
+          {% endif %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold py-1">Admin</a>
+          {% endif %}
+          <div class="flex items-center justify-between pt-1 border-t border-neutral-100 dark:border-neutral-700">
+            <span class="text-neutral-500 dark:text-neutral-400">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">Odjavi se</a>
+          </div>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="hover:text-nba-500 transition-colors py-1">Prijavi se</a>
+          <a href="{{ url_for('auth.register') }}" class="bg-nba-500 text-white px-3 py-2 rounded-md font-medium hover:bg-nba-600 transition-colors text-center">Registruj se</a>
+        {% endif %}
+      </div>
+    </div>
   </header>
 
   <!-- Flash messages -->
@@ -110,15 +150,21 @@
       showToast(e.detail.message, e.detail.category);
     });
 
-    document.getElementById('theme-toggle').addEventListener('click', function () {
-      var html = document.documentElement;
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      } else {
-        html.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      }
+    document.querySelectorAll('.theme-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var html = document.documentElement;
+        if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+    });
+
+    document.getElementById('hamburger').addEventListener('click', function () {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
     });
   </script>
   {% block scripts %}{% endblock %}

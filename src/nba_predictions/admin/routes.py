@@ -237,7 +237,12 @@ def inbox():
 @admin_required
 def compose_message(user_id: int):
     recipient = db.get_or_404(User, user_id)
-    return render_template("partials/message_row.html", recipient=recipient)
+    # HTMX inline call → return the partial row
+    if request.headers.get("HX-Request"):
+        return render_template("partials/message_row.html", recipient=recipient)
+    # Direct browser navigation → full compose page
+    form = MessageAdminForm()
+    return render_template("admin/compose_message.html", recipient=recipient, form=form)
 
 
 @admin.route("/messages/send/<int:user_id>", methods=["POST"])
@@ -263,6 +268,23 @@ def send_to_user(user_id: int):
         flash("Poruka ne može biti prazna.", "danger")
         return "", 422
     return redirect(url_for("admin.inbox"))
+
+
+@admin.route("/series/<int:series_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def delete_series(series_id: int):
+    series = db.get_or_404(Series, series_id)
+    label = f"{series.home} vs {series.away}"
+    preds = db.session.execute(
+        db.select(Prediction).filter_by(series_id=series_id)
+    ).scalars().all()
+    for pred in preds:
+        db.session.delete(pred)
+    _log("delete_series", series_id, label, "deleted")
+    db.session.delete(series)
+    db.session.commit()
+    return "", 200, {"HX-Trigger": '{"showToast":{"message":"Serija obrisana.","category":"danger"}}'}
 
 
 @admin.route("/comments/<int:comment_id>", methods=["POST"])

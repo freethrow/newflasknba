@@ -57,8 +57,24 @@ Then set the following fields in the Web tab:
 |---|---|
 | Source code | `/home/<username>/newflasknba` |
 | Working directory | `/home/<username>/newflasknba` |
-| WSGI configuration file | `/home/<username>/newflasknba/wsgi.py` |
+| WSGI configuration file | `/var/www/<username>_pythonanywhere_com_wsgi.py` (leave as-is) |
 | Virtualenv | `/home/<username>/newflasknba/venv` |
+
+PythonAnywhere fixes the WSGI file path — you cannot change it. Instead, **edit its contents** via the Files tab or the link in the Web tab. Replace everything in it with:
+
+```python
+import sys
+import os
+
+project_home = '/home/<username>/newflasknba'
+sys.path.insert(0, os.path.join(project_home, 'src'))
+
+from nba_predictions import create_app
+
+application = create_app('production')
+```
+
+PythonAnywhere activates the virtualenv automatically when it is set in the Web tab — no `activate_this.py` needed.
 
 ---
 

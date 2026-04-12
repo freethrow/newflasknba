@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Poruka za {{ recipient.username }}{% endblock %}
+{% block content %}
+
+<div class="max-w-lg mx-auto">
+  <div class="mb-6">
+    <a href="{{ url_for('admin.dashboard') }}"
+       class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors text-sm">
+      ← Admin panel
+    </a>
+  </div>
+
+  <h1 class="text-2xl font-bold mb-6">Poruka za {{ recipient.username }}</h1>
+
+  <form method="post" action="{{ url_for('admin.send_to_user', user_id=recipient.id) }}" class="space-y-4">
+    {{ form.hidden_tag() }}
+    <div>
+      <textarea name="body" rows="4" required
+                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-nba-500"
+                placeholder="Poruka za {{ recipient.username }}..."></textarea>
+    </div>
+    <button type="submit"
+            class="bg-nba-500 hover:bg-nba-600 text-white px-5 py-2 rounded-md text-sm font-medium transition-colors">
+      Pošalji
+    </button>
+  </form>
+</div>
+
+{% endblock %}

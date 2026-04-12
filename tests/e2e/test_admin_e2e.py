@@ -93,18 +93,18 @@ def test_admin_closes_series(page: Page, live_server):
 
 
 def test_admin_sets_result(page: Page, live_server):
-    """Admin fills in the result for the series."""
+    """Admin sets the result for the series via the dropdown."""
     logout(page)
     admin_login(page)
     page.goto("/admin/")
 
     series_row = get_series_row(page, "Boston Celtics")
-    series_row.locator('input[name="result"]').fill("4:2")
+    series_row.locator('select[name="result"]').select_option("4:2")
     series_row.locator('button[type="submit"]').click()
     page.wait_for_load_state("networkidle")
 
     updated_row = get_series_row(page, "Boston Celtics")
-    expect(updated_row.locator('input[name="result"]')).to_have_value("4:2")
+    expect(updated_row.locator('select[name="result"]')).to_have_value("4:2")
 
 
 def test_admin_recalculates_scores(page: Page, live_server):
@@ -145,3 +145,25 @@ def test_admin_can_edit_prediction_inline(page: Page, live_server):
         player_row.locator('button[type="submit"]').click()
         page.wait_for_load_state("networkidle")
         expect(page.locator("tr:has-text('player1')")).to_contain_text("4:3")
+
+
+def test_admin_deletes_series(page: Page, live_server):
+    """Admin deletes a series; the row is removed from the dashboard."""
+    logout(page)
+    admin_login(page)
+
+    # Create a throwaway series to delete
+    page.goto("/admin/series/new")
+    page.fill('[name="home"]', "Delete Me FC")
+    page.fill('[name="away"]', "Trash Squad")
+    page.click('[type="submit"]')
+    page.wait_for_load_state("networkidle")
+    expect(page.locator("body")).to_contain_text("Delete Me FC")
+
+    # Accept the confirmation dialog automatically, then click Obriši
+    page.on("dialog", lambda d: d.accept())
+    series_row = get_series_row(page, "Delete Me FC")
+    series_row.get_by_role("button", name="Obriši").click()
+    page.wait_for_load_state("networkidle")
+
+    expect(page.locator("body")).not_to_contain_text("Delete Me FC")

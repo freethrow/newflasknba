@@ -4,7 +4,13 @@ from flask_login import current_user, login_required
 from ..extensions import csrf, db, limiter
 from ..models import Comment, Message, Prediction, Series, User
 from . import main
-from .forms import PLAYIN_CHOICES, REGULAR_CHOICES, CommentForm, MessageForm, PredictionForm
+from .forms import (
+    PLAYIN_CHOICES,
+    REGULAR_CHOICES,
+    CommentForm,
+    MessageForm,
+    PredictionForm,
+)
 
 
 @main.route("/")
@@ -19,7 +25,7 @@ def index():
 
 
 @main.route("/leaderboard/fragment")
-@limiter.limit("10 per minute")
+@limiter.limit("120 per minute")
 def leaderboard_fragment():
     users = db.session.execute(db.select(User)).scalars().all()
     leaderboard = sorted(
@@ -32,14 +38,16 @@ def leaderboard_fragment():
 
 @main.route("/series")
 def series_list():
-    all_series = db.session.execute(
-        db.select(Series).order_by(Series.id)
-    ).scalars().all()
+    all_series = (
+        db.session.execute(db.select(Series).order_by(Series.id)).scalars().all()
+    )
     user_preds = {}
     if current_user.is_authenticated:
-        preds = db.session.execute(
-            db.select(Prediction).filter_by(user_id=current_user.id)
-        ).scalars().all()
+        preds = (
+            db.session.execute(db.select(Prediction).filter_by(user_id=current_user.id))
+            .scalars()
+            .all()
+        )
         user_preds = {p.series_id: p for p in preds}
     return render_template(
         "main/series_list.html",
@@ -97,13 +105,15 @@ def series_detail(series_id: int):
 
     all_preds = []
     if not series.open:
-        all_preds = db.session.execute(
-            db.select(Prediction).filter_by(series_id=series_id)
-        ).scalars().all()
+        all_preds = (
+            db.session.execute(db.select(Prediction).filter_by(series_id=series_id))
+            .scalars()
+            .all()
+        )
 
-    comments = db.session.execute(
-        db.select(Comment).order_by(Comment.created)
-    ).scalars().all()
+    comments = (
+        db.session.execute(db.select(Comment).order_by(Comment.created)).scalars().all()
+    )
 
     return render_template(
         "main/series_detail.html",
@@ -125,9 +135,9 @@ def post_comment(series_id: int):
         c = Comment(user=current_user, body=form.body.data)
         db.session.add(c)
         db.session.commit()
-    comments = db.session.execute(
-        db.select(Comment).order_by(Comment.created)
-    ).scalars().all()
+    comments = (
+        db.session.execute(db.select(Comment).order_by(Comment.created)).scalars().all()
+    )
     if request.headers.get("HX-Request"):
         return render_template("partials/comment_list.html", comments=comments)
     return redirect(url_for("main.series_detail", series_id=series_id))
@@ -137,6 +147,7 @@ def post_comment(series_id: int):
 @csrf.exempt
 def validate_prediction():
     import re
+
     value = request.form.get("predicted", "")
     if re.match(r"^\d:\d$", value):
         return '<span class="text-xs text-green-600">✓</span>'
@@ -152,31 +163,36 @@ def player_profile(username: str):
     if user is None:
         abort(404)
     # Only show predictions for closed series that have a final result
-    preds = [
-        p for p in user.predictions
-        if not p.series.open and p.series.result
-    ]
+    preds = [p for p in user.predictions if not p.series.open and p.series.result]
     preds.sort(key=lambda p: p.series.id)
-    return render_template("main/player_profile.html", profile_user=user, predictions=preds)
+    return render_template(
+        "main/player_profile.html", profile_user=user, predictions=preds
+    )
 
 
 @main.route("/my-predictions")
 @login_required
 def my_predictions():
-    preds = db.session.execute(
-        db.select(Prediction).filter_by(user_id=current_user.id)
-    ).scalars().all()
+    preds = (
+        db.session.execute(db.select(Prediction).filter_by(user_id=current_user.id))
+        .scalars()
+        .all()
+    )
     return render_template("main/my_predictions.html", predictions=preds)
 
 
 @main.route("/messages")
 @login_required
 def messages():
-    msgs = db.session.execute(
-        db.select(Message)
-        .filter_by(to_user_id=current_user.id)
-        .order_by(Message.created.desc())
-    ).scalars().all()
+    msgs = (
+        db.session.execute(
+            db.select(Message)
+            .filter_by(to_user_id=current_user.id)
+            .order_by(Message.created.desc())
+        )
+        .scalars()
+        .all()
+    )
     for m in msgs:
         if not m.read:
             m.read = True
@@ -189,20 +205,22 @@ def messages():
 def send_message():
     if current_user.is_admin:
         abort(403)
-    admins = db.session.execute(
-        db.select(User).filter_by(is_admin=True)
-    ).scalars().all()
+    admins = (
+        db.session.execute(db.select(User).filter_by(is_admin=True)).scalars().all()
+    )
     if not admins:
         flash("Nema dostupnog admina.", "warning")
         return redirect(url_for("main.index"))
     form = MessageForm()
     if form.validate_on_submit():
         for admin in admins:
-            db.session.add(Message(
-                sender=current_user,
-                recipient=admin,
-                body=form.body.data,
-            ))
+            db.session.add(
+                Message(
+                    sender=current_user,
+                    recipient=admin,
+                    body=form.body.data,
+                )
+            )
         db.session.commit()
         flash("Poruka poslata.", "success")
         return redirect(url_for("main.index"))
