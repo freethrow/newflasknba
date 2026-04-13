@@ -87,19 +87,20 @@ def series_detail(series_id: int):
                 )
                 db.session.add(existing_pred)
             db.session.commit()
-            # HTMX: return just the prediction section partial
             if request.headers.get("HX-Request"):
-                return render_template(
-                    "partials/prediction_section.html",
-                    series=series,
-                    pred_form=_make_pred_form(series),
-                    existing_pred=existing_pred,
-                    saved=True,
-                )
+                import json
+                from flask import Response
+                resp = Response("", status=204)
+                resp.headers["HX-Redirect"] = url_for("main.series_list")
+                resp.headers["HX-Trigger"] = json.dumps({
+                    "showToast": {"message": f"Predikcija sačuvana: {existing_pred.predicted}", "category": "success"}
+                })
+                return resp
             flash("Predikcija sačuvana.", "success")
+            return redirect(url_for("main.series_list"))
         else:
             flash("Serija je zatvorena za predikcije.", "warning")
-        return redirect(url_for("main.series_detail", series_id=series_id))
+            return redirect(url_for("main.series_list"))
 
     all_preds = []
     if not series.open:

@@ -1,12 +1,12 @@
 {% for c in comments %}
-<div class="py-3 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
+<div id="comment-{{ c.id }}" class="py-3 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
   <div class="flex items-baseline gap-2 mb-1">
     <span class="font-medium text-sm">{{ c.user.username }}</span>
     <span class="text-xs text-neutral-400">{{ c.created.strftime('%d.%m %H:%M') }}</span>
     {% if current_user.is_admin %}
       <button class="ml-auto text-xs text-red-500 hover:text-red-700 transition-colors"
               hx-post="{{ url_for('admin.delete_comment', comment_id=c.id) }}"
-              hx-target="#comment-list"
+              hx-target="#comment-{{ c.id }}"
               hx-swap="outerHTML"
               hx-confirm="Obrisati komentar?">
         Obriši
