@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Komentari{% endblock %}
+{% block content %}
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold">Komentari</h1>
+  <p class="text-neutral-600 dark:text-neutral-400 text-sm">Opšti forum za sve korisnike</p>
+</div>
+
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+  {% if current_user.is_authenticated %}
+  <form class="mb-4"
+        hx-post="{{ url_for('main.post_comment') }}"
+        hx-target="#comment-list"
+        hx-swap="innerHTML"
+        hx-on::after-request="this.reset()">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <textarea name="body" rows="3"
+              class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-nba-500"
+              placeholder="Napiši komentar..."></textarea>
+    <button type="submit"
+            class="mt-2 px-4 py-2 bg-nba-500 hover:bg-nba-600 text-white text-sm font-medium rounded-md transition-colors">
+      Pošalji komentar
+    </button>
+  </form>
+  <hr class="my-4 border-neutral-200 dark:border-neutral-800">
+  {% endif %}
+
+  <h2 class="font-semibold mb-3">{{ comments|length }} komentara</h2>
+  <div id="comment-list">
+    {% include "partials/comment_list.html" %}
+  </div>
+</div>
+
+{% endblock %}

@@ -45,27 +45,4 @@
 </div>
 {% endif %}
 
-<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-  <h2 class="font-semibold mb-3">Komentari</h2>
-  <div id="comment-list">
-    {% include "partials/comment_list.html" %}
-  </div>
-  {% if current_user.is_authenticated %}
-  <form class="mt-4"
-        hx-post="{{ url_for('main.post_comment', series_id=series.id) }}"
-        hx-target="#comment-list"
-        hx-swap="innerHTML"
-        hx-on::after-request="this.reset()">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <textarea name="body" rows="2"
-              class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-nba-500"
-              placeholder="Napiši komentar..."></textarea>
-    <button type="submit"
-            class="mt-2 px-4 py-1.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-sm font-medium rounded-md transition-colors">
-      Pošalji
-    </button>
-  </form>
-  {% endif %}
-</div>
-
 {% endblock %}

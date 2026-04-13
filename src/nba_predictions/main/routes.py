@@ -7,7 +7,6 @@ from . import main
 from .forms import (
     PLAYIN_CHOICES,
     REGULAR_CHOICES,
-    CommentForm,
     MessageForm,
     PredictionForm,
 )
@@ -25,7 +24,7 @@ def index():
 
 
 @main.route("/leaderboard/fragment")
-@limiter.limit("120 per minute")
+@limiter.limit("20 per minute")
 def leaderboard_fragment():
     users = db.session.execute(db.select(User)).scalars().all()
     leaderboard = sorted(
@@ -67,7 +66,6 @@ def _make_pred_form(series):
 def series_detail(series_id: int):
     series = db.get_or_404(Series, series_id)
     pred_form = _make_pred_form(series)
-    comment_form = CommentForm()
 
     existing_pred = None
     if current_user.is_authenticated:
@@ -111,36 +109,45 @@ def series_detail(series_id: int):
             .all()
         )
 
-    comments = (
-        db.session.execute(db.select(Comment).order_by(Comment.created)).scalars().all()
-    )
-
     return render_template(
         "main/series_detail.html",
         series=series,
         pred_form=pred_form,
-        comment_form=comment_form,
         existing_pred=existing_pred,
         all_preds=all_preds,
-        comments=comments,
     )
 
 
-@main.route("/series/<int:series_id>/comment", methods=["POST"])
+@main.route("/comments")
 @login_required
-def post_comment(series_id: int):
-    db.get_or_404(Series, series_id)
+def comments():
+    all_comments = (
+        db.session.execute(db.select(Comment).order_by(Comment.created.desc()))
+        .scalars()
+        .all()
+    )
+    return render_template("main/comments.html", comments=all_comments)
+
+
+@main.route("/comments/post", methods=["POST"])
+@login_required
+def post_comment():
+    from .forms import CommentForm
+
     form = CommentForm()
     if form.validate_on_submit():
         c = Comment(user=current_user, body=form.body.data)
         db.session.add(c)
         db.session.commit()
-    comments = (
-        db.session.execute(db.select(Comment).order_by(Comment.created)).scalars().all()
+
+    all_comments = (
+        db.session.execute(db.select(Comment).order_by(Comment.created.desc()))
+        .scalars()
+        .all()
     )
     if request.headers.get("HX-Request"):
-        return render_template("partials/comment_list.html", comments=comments)
-    return redirect(url_for("main.series_detail", series_id=series_id))
+        return render_template("partials/comment_list.html", comments=all_comments)
+    return redirect(url_for("main.comments"))
 
 
 @main.route("/validate/prediction", methods=["POST"])

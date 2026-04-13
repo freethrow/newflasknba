@@ -84,7 +84,9 @@ def test_prediction_rejected_on_closed_series(client, db, regular_user):
 def test_series_detail_shows_all_predictions_when_closed(client, db, regular_user):
     _login_as(client, regular_user)
     s = _make_series(db, open=False, result="4:2")
-    p = Prediction(series_id=s.id, user_id=regular_user.id, predicted="4:1", score_made=15)
+    p = Prediction(
+        series_id=s.id, user_id=regular_user.id, predicted="4:1", score_made=15
+    )
     db.session.add(p)
     db.session.commit()
     resp = client.get(f"/series/{s.id}")
@@ -95,10 +97,55 @@ def test_series_detail_shows_all_predictions_when_closed(client, db, regular_use
     db.session.commit()
 
 
+def test_series_detail_hides_other_predictions_when_open(client, db, regular_user):
+    from nba_predictions.models import User
+
+    other_user = User(username="other_test", is_active=True)
+    other_user.password = "otherpass"
+    db.session.add(other_user)
+    db.session.commit()
+
+    _login_as(client, regular_user)
+    s = _make_series(db, open=True)
+    p = Prediction(series_id=s.id, user_id=other_user.id, predicted="4:1", score_made=0)
+    db.session.add(p)
+    db.session.commit()
+
+    resp = client.get(f"/series/{s.id}")
+    assert resp.status_code == 200
+    assert b"other_test" not in resp.data
+    assert b"Sve predikcije" not in resp.data
+
+    db.session.delete(p)
+    db.session.delete(s)
+    db.session.delete(other_user)
+    db.session.commit()
+
+
+def test_player_profile_hides_open_series_predictions(client, db, regular_user):
+    _login_as(client, regular_user)
+    s = _make_series(db, open=True, result="4:2")
+    p = Prediction(
+        series_id=s.id, user_id=regular_user.id, predicted="4:2", score_made=15
+    )
+    db.session.add(p)
+    db.session.commit()
+
+    resp = client.get(f"/player/{regular_user.username}")
+    assert resp.status_code == 200
+    assert b"4:2" not in resp.data
+
+    db.session.delete(p)
+    db.session.delete(s)
+    db.session.commit()
+
+
 def test_my_predictions_page(client, db, regular_user):
     _login_as(client, regular_user)
     s = _make_series(db)
-    p = Prediction(series_id=s.id, user_id=regular_user.id, predicted="4:2", score_made=0)
+    p = Prediction(
+        series_id=s.id, user_id=regular_user.id, predicted="4:2", score_made=0
+    )
     db.session.add(p)
     db.session.commit()
     resp = client.get("/my-predictions")
