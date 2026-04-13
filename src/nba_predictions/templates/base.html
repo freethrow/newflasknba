@@ -36,7 +36,7 @@
           {% if current_user.is_admin %}
             <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold">Admin</a>
           {% endif %}
-          <span class="text-neutral-500 dark:text-neutral-400">{{ current_user.username }}</span>
+          <span class="font-bold text-neutral-700 dark:text-neutral-200">{{ current_user.username }}</span>
           <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">Odjavi se</a>
         {% else %}
           <a href="{{ url_for('auth.login') }}" class="hover:text-nba-500 transition-colors">Prijavi se</a>
@@ -84,7 +84,7 @@
             <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold py-1">Admin</a>
           {% endif %}
           <div class="flex items-center justify-between pt-1 border-t border-neutral-100 dark:border-neutral-700">
-            <span class="text-neutral-500 dark:text-neutral-400">{{ current_user.username }}</span>
+            <span class="font-bold text-neutral-700 dark:text-neutral-200">{{ current_user.username }}</span>
             <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">Odjavi se</a>
           </div>
         {% else %}

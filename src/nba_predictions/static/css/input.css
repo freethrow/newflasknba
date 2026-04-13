@@ -4,8 +4,9 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-nba-300: #ff7a4d;
+  --color-nba-400: #f06d41;
   --color-nba-500: #ED5C2E;
   --color-nba-600: #d44e24;
-  --color-nba-400: #f06d41;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
