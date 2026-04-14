@@ -37,8 +37,9 @@ def leaderboard_fragment():
 
 @main.route("/series")
 def series_list():
-    all_series = (
-        db.session.execute(db.select(Series).order_by(Series.id)).scalars().all()
+    all_series = sorted(
+        db.session.execute(db.select(Series)).scalars().all(),
+        key=lambda s: (-s.open, -s.id),
     )
     user_preds = {}
     if current_user.is_authenticated:
@@ -90,11 +91,17 @@ def series_detail(series_id: int):
             if request.headers.get("HX-Request"):
                 import json
                 from flask import Response
+
                 resp = Response("", status=204)
                 resp.headers["HX-Redirect"] = url_for("main.series_list")
-                resp.headers["HX-Trigger"] = json.dumps({
-                    "showToast": {"message": f"Predikcija sačuvana: {existing_pred.predicted}", "category": "success"}
-                })
+                resp.headers["HX-Trigger"] = json.dumps(
+                    {
+                        "showToast": {
+                            "message": f"Predikcija sačuvana: {existing_pred.predicted}",
+                            "category": "success",
+                        }
+                    }
+                )
                 return resp
             flash("Predikcija sačuvana.", "success")
             return redirect(url_for("main.series_list"))
@@ -110,8 +117,13 @@ def series_detail(series_id: int):
             .scalars()
             .all()
         )
-        buckets = ["1:0", "0:1"] if series.is_playin else ["4:0","4:1","4:2","4:3","3:4","2:4","1:4","0:4"]
+        buckets = (
+            ["1:0", "0:1"]
+            if series.is_playin
+            else ["4:0", "4:1", "4:2", "4:3", "3:4", "2:4", "1:4", "0:4"]
+        )
         from collections import Counter
+
         counts = Counter(p.predicted for p in all_preds if p.predicted)
         dist = {r: counts.get(r, 0) for r in buckets}
 

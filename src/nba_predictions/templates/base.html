@@ -77,6 +77,7 @@
         <a href="{{ url_for('main.series_list') }}" class="hover:text-nba-500 transition-colors py-1">Serije</a>
         {% if current_user.is_authenticated %}
           <a href="{{ url_for('main.my_predictions') }}" class="hover:text-nba-500 transition-colors py-1">Moje predikcije</a>
+          <a href="{{ url_for('main.comments') }}" class="hover:text-nba-500 transition-colors py-1">Komentari</a>
           {% if not current_user.is_admin %}
             <a href="{{ url_for('main.messages') }}" class="hover:text-nba-500 transition-colors py-1">Poruke</a>
           {% endif %}
