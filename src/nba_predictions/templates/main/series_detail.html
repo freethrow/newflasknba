@@ -21,6 +21,35 @@
 
 {% include "partials/prediction_section.html" %}
 
+{% if dist %}
+{% set max_count = dist.values()|max %}
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 mb-6">
+  <h2 class="font-semibold text-sm mb-4">Raspodela predikcija</h2>
+  <div class="space-y-2">
+    {% for result, count in dist.items() %}
+      {% if count > 0 %}
+        {% set is_mine = existing_pred and existing_pred.predicted == result %}
+        {% set is_actual = series.result == result %}
+        <div class="flex items-center gap-3 text-sm">
+          <span class="font-mono w-8 shrink-0 {% if is_mine %}font-bold text-nba-500{% else %}text-neutral-500 dark:text-neutral-400{% endif %}">{{ result }}</span>
+          <div class="flex-1 bg-neutral-100 dark:bg-neutral-800 rounded-full h-5 overflow-hidden">
+            <div class="h-5 rounded-full flex items-center pl-2 text-xs font-medium transition-all duration-300
+                        {% if is_mine %}bg-nba-500 text-white{% elif is_actual %}bg-green-500 text-white{% else %}bg-neutral-300 dark:bg-neutral-600 text-neutral-700 dark:text-neutral-200{% endif %}"
+                 style="width: {{ ((count / max_count) * 100)|round|int }}%">
+              {{ count }}
+            </div>
+          </div>
+          <span class="text-xs text-neutral-400 w-16 shrink-0">
+            {% if is_mine %}<span class="text-nba-500 font-semibold">tvoja</span>{% endif %}
+            {% if is_actual %}<span class="text-green-600 dark:text-green-400 font-semibold">rezultat</span>{% endif %}
+          </span>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if not series.open and all_preds %}
 <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6">
   <h2 class="font-semibold px-4 py-3 bg-neutral-50 dark:bg-neutral-900 text-sm">Sve predikcije</h2>

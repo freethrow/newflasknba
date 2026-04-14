@@ -103,12 +103,17 @@ def series_detail(series_id: int):
             return redirect(url_for("main.series_list"))
 
     all_preds = []
+    dist = {}
     if not series.open:
         all_preds = (
             db.session.execute(db.select(Prediction).filter_by(series_id=series_id))
             .scalars()
             .all()
         )
+        buckets = ["1:0", "0:1"] if series.is_playin else ["4:0","4:1","4:2","4:3","3:4","2:4","1:4","0:4"]
+        from collections import Counter
+        counts = Counter(p.predicted for p in all_preds if p.predicted)
+        dist = {r: counts.get(r, 0) for r in buckets}
 
     return render_template(
         "main/series_detail.html",
@@ -116,6 +121,7 @@ def series_detail(series_id: int):
         pred_form=pred_form,
         existing_pred=existing_pred,
         all_preds=all_preds,
+        dist=dist,
     )
 
 
