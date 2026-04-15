@@ -12,7 +12,7 @@ def calculate_score(pred: str, actual: str, is_playin: bool = False) -> int:
     - +1  if the away team wins the actual series
 
     Play-in rules:
-    - 5 pts if predicted winner matches actual winner
+    - 2.5 pts if predicted winner matches actual winner
     """
     pred_home, pred_away = int(pred.split(":")[0]), int(pred.split(":")[1])
     actual_home, actual_away = int(actual.split(":")[0]), int(actual.split(":")[1])
@@ -20,7 +20,7 @@ def calculate_score(pred: str, actual: str, is_playin: bool = False) -> int:
     correct_winner = (pred_home - pred_away) * (actual_home - actual_away) > 0
 
     if is_playin:
-        return 5 if correct_winner else 0
+        return 2.5 if correct_winner else 0
 
     score = 0
     if correct_winner:

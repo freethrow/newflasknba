@@ -28,7 +28,7 @@ def _verify_reset_token(token: str, max_age: int = 3600) -> str | None:
 
 
 @auth.route("/login", methods=["GET", "POST"])
-@limiter.limit("25 per minute")
+@limiter.limit("5 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
@@ -83,7 +83,7 @@ def reset_password_request():
                 from ..mail import send_password_reset
 
                 send_password_reset(user.email, reset_url)
-            except Exception as e:
+            except Exception:
                 current_app.logger.exception("Failed to send reset email")
                 if current_app.debug:
                     raise
