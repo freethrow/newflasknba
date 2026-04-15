@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Predikcije — {{ series.home }} vs {{ series.away }}{% endblock %}
+{% block title %}Prognoze — {{ series.home }} vs {{ series.away }}{% endblock %}
 {% block content %}
 
 <div class="flex items-center gap-3 mb-6 flex-wrap">
   <h1 class="text-xl font-bold">
-    Predikcije: {{ series.home }} vs {{ series.away }}
+    Prognoze: {{ series.home }} vs {{ series.away }}
     {% if series.is_playin %}
       <span class="text-sm px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-medium">Play-in</span>
     {% endif %}
@@ -22,7 +22,7 @@
     <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
       <tr>
         <th class="px-4 py-3 text-left">Korisnik</th>
-        <th class="px-4 py-3 text-left">Predikcija</th>
+        <th class="px-4 py-3 text-left">Prognoza</th>
         <th class="px-4 py-3 text-left">Poeni</th>
         <th class="px-4 py-3 text-left"></th>
       </tr>

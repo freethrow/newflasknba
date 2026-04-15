@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Moje predikcije{% endblock %}
+{% block title %}Moje prognoze{% endblock %}
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Moje predikcije</h1>
+<h1 class="text-2xl font-bold mb-6">Moje prognoze</h1>
 
 {% if predictions %}
 <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 overflow-hidden">
@@ -10,7 +10,7 @@
     <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 text-xs uppercase tracking-wide">
       <tr>
         <th class="px-4 py-3 text-left">Serija</th>
-        <th class="px-4 py-3 text-center">Predikcija</th>
+        <th class="px-4 py-3 text-center">Prognoza</th>
         <th class="px-4 py-3 text-center">Rezultat</th>
         <th class="px-4 py-3 text-right">Poeni</th>
       </tr>
@@ -35,7 +35,7 @@
   </table>
 </div>
 {% else %}
-<p class="text-neutral-400 dark:text-neutral-500">Nema predikcija.</p>
+<p class="text-neutral-400 dark:text-neutral-500">Nema prognoza.</p>
 {% endif %}
 
 {% endblock %}

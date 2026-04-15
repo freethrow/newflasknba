@@ -20,7 +20,7 @@ PLAYIN_CHOICES = [
 
 
 class PredictionForm(FlaskForm):
-    predicted = SelectField("Predikcija", validators=[DataRequired()], choices=[])
+    predicted = SelectField("Prognoza", validators=[DataRequired()], choices=[])
     submit = SubmitField("Pošalji")
 
 

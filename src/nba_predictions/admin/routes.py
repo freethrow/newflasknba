@@ -81,14 +81,14 @@ def update_series(series_id: int):
                 )
         db.session.commit()
         _log("recalculate_series", series.id, "", f"{len(preds)} predictions updated automatically")
-        toast_msg = f"Rezultat sačuvan. {len(preds)} predikcija ažurirano."
+        toast_msg = f"Rezultat sačuvan. {len(preds)} prognoza ažurirano."
         toast_cat = "success"
     elif series.open != was_open:
         if series.open:
-            toast_msg = "Serija otvorena za predikcije."
+            toast_msg = "Serija otvorena za prognoze."
             toast_cat = "success"
         else:
-            toast_msg = "Serija zatvorena za predikcije."
+            toast_msg = "Serija zatvorena za prognoze."
             toast_cat = "warning"
 
     from flask import Response

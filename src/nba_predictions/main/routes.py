@@ -77,7 +77,7 @@ def series_detail(series_id: int):
         ).scalar_one_or_none()
 
     if pred_form.validate_on_submit() and current_user.is_authenticated:
-        if series.open:
+        if series.open and not series.result:
             if existing_pred:
                 existing_pred.predicted = pred_form.predicted.data
             else:
@@ -97,16 +97,16 @@ def series_detail(series_id: int):
                 resp.headers["HX-Trigger"] = json.dumps(
                     {
                         "showToast": {
-                            "message": f"Predikcija sačuvana: {existing_pred.predicted}",
+                            "message": f"Prognoza sačuvana: {existing_pred.predicted}",
                             "category": "success",
                         }
                     }
                 )
                 return resp
-            flash("Predikcija sačuvana.", "success")
+            flash("Prognoza sačuvana.", "success")
             return redirect(url_for("main.series_list"))
         else:
-            flash("Serija je zatvorena za predikcije.", "warning")
+            flash("Serija je zatvorena za prognoze.", "warning")
             return redirect(url_for("main.series_list"))
 
     all_preds = []
