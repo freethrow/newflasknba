@@ -25,18 +25,24 @@
       <a href="{{ url_for('main.index') }}" class="font-black text-xl text-nba-500 tracking-tight">NBA Prognoze</a>
 
       <!-- Desktop nav -->
+      {% macro nav_link(endpoint, label) %}
+        <a href="{{ url_for(endpoint) }}"
+           class="transition-colors hover:text-nba-500 {% if request.endpoint == endpoint %}text-nba-500 font-bold{% endif %}">
+          {{- label -}}
+        </a>
+      {% endmacro %}
       <div class="hidden md:flex items-center gap-4 text-sm">
-        <a href="{{ url_for('main.scoreboard') }}" class="hover:text-nba-500 transition-colors">Tabela</a>
-        <a href="{{ url_for('main.series_list') }}" class="hover:text-nba-500 transition-colors">Serije</a>
-        <a href="{{ url_for('main.faq') }}" class="hover:text-nba-500 transition-colors">FAQ</a>
+        {{ nav_link('main.scoreboard', 'Tabela') }}
+        {{ nav_link('main.series_list', 'Serije') }}
+        {{ nav_link('main.faq', 'FAQ') }}
         {% if current_user.is_authenticated %}
-          <a href="{{ url_for('main.my_predictions') }}" class="hover:text-nba-500 transition-colors">Moje prognoze</a>
-          <a href="{{ url_for('main.comments') }}" class="hover:text-nba-500 transition-colors">Komentari</a>
+          {{ nav_link('main.my_predictions', 'Moje prognoze') }}
+          {{ nav_link('main.comments', 'Komentari') }}
           {% if not current_user.is_admin %}
-            <a href="{{ url_for('main.messages') }}" class="hover:text-nba-500 transition-colors">Poruke</a>
+            {{ nav_link('main.messages', 'Poruke') }}
           {% endif %}
           {% if current_user.is_admin %}
-            <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold">Admin</a>
+            {{ nav_link('admin.dashboard', 'Admin') }}
           {% endif %}
           <span class="font-bold text-neutral-700 dark:text-neutral-200">{{ current_user.username }}</span>
           <a href="{{ url_for('auth.logout') }}" class="hover:text-nba-500 transition-colors text-neutral-400 dark:text-neutral-500 text-xs">Odjavi se</a>
@@ -75,18 +81,24 @@
 
     <!-- Mobile menu (hidden by default) -->
     <div id="mobile-menu" class="hidden md:hidden border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
+      {% macro mob_link(endpoint, label) %}
+        <a href="{{ url_for(endpoint) }}"
+           class="py-1 transition-colors hover:text-nba-500 {% if request.endpoint == endpoint %}text-nba-500 font-bold{% endif %}">
+          {{- label -}}
+        </a>
+      {% endmacro %}
       <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col gap-3 text-sm">
-        <a href="{{ url_for('main.scoreboard') }}" class="hover:text-nba-500 transition-colors py-1">Tabela</a>
-        <a href="{{ url_for('main.series_list') }}" class="hover:text-nba-500 transition-colors py-1">Serije</a>
-        <a href="{{ url_for('main.faq') }}" class="hover:text-nba-500 transition-colors py-1">FAQ</a>
+        {{ mob_link('main.scoreboard', 'Tabela') }}
+        {{ mob_link('main.series_list', 'Serije') }}
+        {{ mob_link('main.faq', 'FAQ') }}
         {% if current_user.is_authenticated %}
-          <a href="{{ url_for('main.my_predictions') }}" class="hover:text-nba-500 transition-colors py-1">Moje prognoze</a>
-          <a href="{{ url_for('main.comments') }}" class="hover:text-nba-500 transition-colors py-1">Komentari</a>
+          {{ mob_link('main.my_predictions', 'Moje prognoze') }}
+          {{ mob_link('main.comments', 'Komentari') }}
           {% if not current_user.is_admin %}
-            <a href="{{ url_for('main.messages') }}" class="hover:text-nba-500 transition-colors py-1">Poruke</a>
+            {{ mob_link('main.messages', 'Poruke') }}
           {% endif %}
           {% if current_user.is_admin %}
-            <a href="{{ url_for('admin.dashboard') }}" class="hover:text-nba-500 transition-colors font-semibold py-1">Admin</a>
+            {{ mob_link('admin.dashboard', 'Admin') }}
           {% endif %}
           <div class="flex items-center justify-between pt-1 border-t border-neutral-100 dark:border-neutral-700">
             <span class="font-bold text-neutral-700 dark:text-neutral-200">{{ current_user.username }}</span>

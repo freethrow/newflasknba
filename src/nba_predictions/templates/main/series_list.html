@@ -44,14 +44,24 @@
       </div>
 
       {# Matchup — main typographic element #}
+      {% if s.result %}
+        {% set rparts = s.result.split(':') %}
+        {% set home_won = rparts[0]|int > rparts[1]|int %}
+      {% endif %}
       <div class="flex-1 mb-4">
-        <p class="font-bold text-base uppercase tracking-wide leading-tight text-neutral-900 dark:text-neutral-100">{{ s.home }}</p>
+        <p class="font-bold text-base uppercase tracking-wide leading-tight rounded px-2 py-0.5 text-center
+                  {% if s.result and home_won %}text-nba-500 border-2 border-nba-500{% else %}text-neutral-900 dark:text-neutral-100 border-2 border-transparent{% endif %}">
+          {{ s.home }}
+        </p>
         <div class="flex items-center gap-2 my-2">
           <div class="flex-1 h-px bg-neutral-200 dark:bg-neutral-700"></div>
           <span class="text-xs font-bold tracking-widest text-neutral-400 dark:text-neutral-500">vs</span>
           <div class="flex-1 h-px bg-neutral-200 dark:bg-neutral-700"></div>
         </div>
-        <p class="font-bold text-base uppercase tracking-wide leading-tight text-neutral-900 dark:text-neutral-100">{{ s.away }}</p>
+        <p class="font-bold text-base uppercase tracking-wide leading-tight rounded px-2 py-0.5 text-center
+                  {% if s.result and not home_won %}text-nba-500 border-2 border-nba-500{% else %}text-neutral-900 dark:text-neutral-100 border-2 border-transparent{% endif %}">
+          {{ s.away }}
+        </p>
       </div>
 
       {# Footer: prediction or result #}
