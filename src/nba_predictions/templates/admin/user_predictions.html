@@ -15,6 +15,7 @@
       </tr>
     </thead>
     <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% set show_series = true %}
       {% for pred in predictions %}
         {% include "partials/prediction_row.html" %}
       {% else %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Tabela{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Tabela</h1>
+</div>
+
+<div class="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+     hx-get="{{ url_for('main.leaderboard_fragment') }}"
+     hx-trigger="every 30s"
+     hx-target="#leaderboard-body">
+  <table class="w-full text-sm">
+    <thead class="bg-neutral-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 uppercase text-xs tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left w-10">#</th>
+        <th class="px-4 py-3 text-left">Korisnik</th>
+        <th class="px-4 py-3 text-right">Poeni</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboard-body" class="divide-y divide-neutral-100 dark:divide-neutral-800">
+      {% include "partials/leaderboard_rows.html" %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

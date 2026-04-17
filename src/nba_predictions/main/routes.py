@@ -14,13 +14,23 @@ from .forms import (
 
 @main.route("/")
 def index():
+    return render_template("main/landing.html")
+
+
+@main.route("/scoreboard")
+def scoreboard():
     users = db.session.execute(db.select(User)).scalars().all()
     leaderboard = sorted(
         [(u, u.total) for u in users],
         key=lambda x: x[1],
         reverse=True,
     )
-    return render_template("main/index.html", leaderboard=leaderboard)
+    return render_template("main/scoreboard.html", leaderboard=leaderboard)
+
+
+@main.route("/faq")
+def faq():
+    return render_template("main/faq.html")
 
 
 @main.route("/leaderboard/fragment")

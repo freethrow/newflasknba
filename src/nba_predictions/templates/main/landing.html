@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}NBA Prognoze{% endblock %}
+
+{% block main_class %}flex-1 w-full p-0{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center overflow-hidden"
+     style="background: linear-gradient(135deg, #0d0d0d 0%, #1a1008 40%, #2d1a06 70%, #0d0d0d 100%);">
+
+  {# Decorative radial glow #}
+  <div class="absolute inset-0 pointer-events-none"
+       style="background: radial-gradient(ellipse 70% 50% at 50% 60%, rgba(237,92,46,0.18) 0%, transparent 70%);"></div>
+
+  {# Subtle grid texture #}
+  <div class="absolute inset-0 pointer-events-none opacity-5"
+       style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+  {# Hero content #}
+  <div class="relative z-10 flex flex-col items-center text-center px-6 py-16 gap-6">
+
+    <p class="text-xs font-bold tracking-[0.3em] uppercase text-nba-500 mb-2">Sezona 2026</p>
+
+    <h1 class="uppercase leading-none text-white"
+        style="font-family: 'Monoton', cursive; font-size: clamp(2.2rem, 8vw, 5.5rem); text-shadow: 0 4px 40px rgba(237,92,46,0.5);">
+      NBA<br>
+      <span style="color: #ED5C2E;">Prognoze</span>
+    </h1>
+
+    <p class="text-neutral-400 text-base max-w-sm leading-relaxed">
+      Predvidi rezultate playoff serija, sakupi poene i popni se na vrh tabele.
+    </p>
+
+    <div class="flex flex-wrap gap-3 justify-center mt-2">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.series_list') }}"
+           class="px-6 py-2.5 bg-nba-500 hover:bg-nba-600 text-white font-semibold rounded-full transition-colors text-sm">
+          Serije
+        </a>
+        <a href="{{ url_for('main.scoreboard') }}"
+           class="px-6 py-2.5 border border-neutral-600 hover:border-neutral-400 text-neutral-300 hover:text-white font-semibold rounded-full transition-colors text-sm">
+          Tabela
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.register') }}"
+           class="px-6 py-2.5 bg-nba-500 hover:bg-nba-600 text-white font-semibold rounded-full transition-colors text-sm">
+          Pridruži se
+        </a>
+        <a href="{{ url_for('auth.login') }}"
+           class="px-6 py-2.5 border border-neutral-600 hover:border-neutral-400 text-neutral-300 hover:text-white font-semibold rounded-full transition-colors text-sm">
+          Prijavi se
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  {# Bottom fade into page bg #}
+  <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+       style="background: linear-gradient(to bottom, transparent, rgba(13,13,13,0.6));"></div>
+
+</div>
+{% endblock %}

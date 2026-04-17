@@ -1,7 +1,9 @@
 <tr id="pred-row-{{ pred.id }}" class="hover:bg-neutral-50 dark:hover:bg-neutral-900">
   <td class="px-4 py-1.5 font-medium text-sm">
-    {% if pred.user is defined and pred.user %}{{ pred.user.username }}
-    {% elif pred.series is defined and pred.series %}{{ pred.series.home }} vs {{ pred.series.away }}
+    {% if show_series is defined and show_series %}
+      {{ pred.series.home }} vs {{ pred.series.away }}
+    {% elif pred.user is defined and pred.user %}
+      {{ pred.user.username }}
     {% endif %}
   </td>
 
