@@ -1,7 +1,11 @@
-from flask import abort, flash, redirect, render_template, request, url_for
+import datetime
+from zoneinfo import ZoneInfo
+
+import requests as http_requests
+from flask import abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from ..extensions import csrf, db, limiter
+from ..extensions import cache, csrf, db, limiter
 from ..models import Comment, Message, Prediction, Series, User
 from . import main
 from .forms import (
@@ -10,6 +14,27 @@ from .forms import (
     MessageForm,
     PredictionForm,
 )
+
+_BELGRADE = ZoneInfo("Europe/Belgrade")
+
+
+def _localize_game(g: dict) -> None:
+    """Add _local_date / _local_time (Belgrade) to a balldontlie game dict.
+
+    For scheduled games the API puts the tip-off time in `status` as an ISO
+    string (e.g. "2026-04-23T23:00:00Z").  The `date` field is always midnight
+    UTC of the game day, so it carries no time information.
+    """
+    status = g.get("status") or ""
+    src = status if "T" in status else g.get("date", "")
+    try:
+        utc_dt = datetime.datetime.fromisoformat(src.replace("Z", "+00:00"))
+        local_dt = utc_dt.astimezone(_BELGRADE)
+        g["_local_date"] = local_dt.date().isoformat()
+        g["_local_time"] = local_dt.strftime("%H:%M")
+    except Exception:
+        g["_local_date"] = (g.get("date") or "")[:10]
+        g["_local_time"] = ""
 
 
 @main.route("/")
@@ -31,6 +56,58 @@ def scoreboard():
 @main.route("/faq")
 def faq():
     return render_template("main/faq.html")
+
+
+@main.route("/series/<int:series_id>/games")
+@limiter.limit("20 per minute")
+@cache.cached(timeout=3600)
+def series_games(series_id: int):
+    series = db.get_or_404(Series, series_id)
+    api_key = current_app.config.get("BALLDONTLIE_API_KEY", "")
+    if not api_key:
+        return render_template("partials/series_games.html", series=series, games=[], standing=None, error="API ključ nije podešen.")
+    season = int(current_app.config.get("CURRENT_SEASON", "2026")) - 1
+    try:
+        from ..services.balldontlie import get_series_games, series_standing
+        games = get_series_games(series.home, series.away, api_key, season=season)
+        for g in games:
+            _localize_game(g)
+        standing = series_standing(games) if games else None
+    except Exception:
+        return render_template("partials/series_games.html", series=series, games=[], standing=None, error="Nije moguće učitati raspored.")
+    return render_template("partials/series_games.html", series=series, games=games, standing=standing, error=None)
+
+
+@main.route("/games/upcoming")
+@limiter.limit("30 per minute")
+@cache.cached(timeout=3600)
+def upcoming_games():
+    api_key = current_app.config.get("BALLDONTLIE_API_KEY", "")
+    if not api_key:
+        return render_template("partials/upcoming_games.html", games=[], error="API ključ nije podešen.")
+
+    today = datetime.date.today()
+    end = today + datetime.timedelta(days=3)
+    try:
+        resp = http_requests.get(
+            "https://api.balldontlie.io/v1/games",
+            headers={"Authorization": api_key},
+            params={
+                "start_date": today.isoformat(),
+                "end_date": end.isoformat(),
+                "per_page": 100,
+            },
+            timeout=5,
+        )
+        resp.raise_for_status()
+        games = resp.json().get("data", [])
+        games.sort(key=lambda g: g["date"])
+        for g in games:
+            _localize_game(g)
+    except Exception:
+        return render_template("partials/upcoming_games.html", games=[], error="Nije moguće učitati raspored.")
+
+    return render_template("partials/upcoming_games.html", games=games, error=None)
 
 
 @main.route("/leaderboard/fragment")

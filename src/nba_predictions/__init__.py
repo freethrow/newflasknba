@@ -4,7 +4,7 @@ import click
 from flask import Flask
 
 from .config import config
-from .extensions import csrf, db, limiter, login_manager, migrate
+from .extensions import cache, csrf, db, limiter, login_manager, migrate
 
 
 def create_app(config_name: str = "default") -> Flask:
@@ -17,6 +17,7 @@ def create_app(config_name: str = "default") -> Flask:
     migrate.init_app(app, db)
     csrf.init_app(app)
     limiter.init_app(app)
+    cache.init_app(app, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600})
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
@@ -43,9 +44,27 @@ def create_app(config_name: str = "default") -> Flask:
         app.logger.exception(e)
         return render_template("500.html"), 500
 
+    _register_filters(app)
     _register_cli(app)
     _auto_create_db(app)
     return app
+
+
+def _register_filters(app: Flask) -> None:
+    _MONTHS_SR = [
+        "", "januar", "februar", "mart", "april", "maj", "jun",
+        "jul", "avgust", "septembar", "oktobar", "novembar", "decembar",
+    ]
+
+    @app.template_filter("serbian_date")
+    def serbian_date(date_str: str) -> str:
+        """'2026-04-23' → '23. april'"""
+        try:
+            from datetime import date
+            d = date.fromisoformat(date_str[:10])
+            return f"{d.day}. {_MONTHS_SR[d.month]}"
+        except Exception:
+            return date_str
 
 
 def _auto_create_db(app: Flask) -> None:

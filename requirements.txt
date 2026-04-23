@@ -10,3 +10,6 @@ resend
 flask-limiter
 itsdangerous>=2.1
 email-validator
+requests>=2.31
+flask-caching
+tzdata
