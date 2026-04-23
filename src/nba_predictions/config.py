@@ -12,6 +12,7 @@ _BASE_DIR = Path(__file__).resolve().parent.parent.parent  # repo root
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-prod")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    BALLDONTLIE_API_KEY = os.environ.get("BALL_DONT_LIE_API_KEY", "")
 
     @staticmethod
     def init_app(app):

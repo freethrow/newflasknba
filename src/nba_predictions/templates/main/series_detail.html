@@ -21,6 +21,16 @@
 
 {% include "partials/prediction_section.html" %}
 
+<!-- Game-by-game series tracker -->
+<div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 mb-6">
+  <h2 class="font-semibold text-sm mb-3">Tok serije</h2>
+  <div hx-get="{{ url_for('main.series_games', series_id=series.id) }}"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+    <p class="text-xs text-neutral-400 italic">Učitavanje...</p>
+  </div>
+</div>
+
 {% if dist %}
 {% set max_count = dist.values()|max %}
 <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 mb-6">

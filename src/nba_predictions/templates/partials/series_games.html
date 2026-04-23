@@ -1,0 +1,48 @@
+<div id="series-games">
+  {% if error %}
+    <p class="text-xs text-neutral-400 dark:text-neutral-500 italic">{{ error }}</p>
+  {% elif not games %}
+    <p class="text-xs text-neutral-400 dark:text-neutral-500 italic">Nema podataka o odigranim utakmicama.</p>
+  {% else %}
+    {% if standing %}
+      {% set hw, aw = standing %}
+      <div class="flex items-center justify-center gap-4 mb-4">
+        <span class="text-sm font-medium {% if hw > aw %}text-nba-500 font-bold{% else %}text-neutral-500 dark:text-neutral-400{% endif %}">{{ series.home }}</span>
+        <span class="font-mono text-2xl font-black tabular-nums">{{ hw }}<span class="text-neutral-300 dark:text-neutral-600 mx-1">–</span>{{ aw }}</span>
+        <span class="text-sm font-medium {% if aw > hw %}text-nba-500 font-bold{% else %}text-neutral-500 dark:text-neutral-400{% endif %}">{{ series.away }}</span>
+      </div>
+    {% endif %}
+
+    <div class="space-y-1">
+      {% for g in games %}
+        {% set is_home_winner = g.status == "Final" and g.home_team_score > g.visitor_team_score %}
+        {% set is_visitor_winner = g.status == "Final" and g.visitor_team_score > g.home_team_score %}
+        <div class="flex items-center gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800 last:border-0 text-sm">
+          <span class="text-xs text-neutral-400 dark:text-neutral-500 w-5 shrink-0 font-mono">G{{ loop.index }}</span>
+          <div class="flex-1 flex items-center justify-between gap-2">
+            <span class="{% if is_home_winner %}font-semibold text-neutral-900 dark:text-neutral-100{% else %}text-neutral-500 dark:text-neutral-400{% endif %} truncate">
+              {{ g.home_team.abbreviation }}
+            </span>
+            {% if g.status == "Final" %}
+              <span class="font-mono text-xs font-semibold text-neutral-700 dark:text-neutral-300 shrink-0">
+                {{ g.home_team_score }} – {{ g.visitor_team_score }}
+              </span>
+            {% elif g.status and "T" not in g.status and g.status not in ("0", "") %}
+              <span class="text-xs text-nba-500 font-semibold shrink-0">{{ g.status }}</span>
+            {% elif g._local_time %}
+              <span class="text-xs text-neutral-500 dark:text-neutral-400 shrink-0 text-right leading-tight">
+                <span class="block font-mono">{{ g._local_time }}</span>
+                <span class="block text-neutral-400 dark:text-neutral-500" style="font-size:0.65rem">{{ g._local_date | serbian_date }}</span>
+              </span>
+            {% else %}
+              <span class="text-xs text-neutral-400 shrink-0">—</span>
+            {% endif %}
+            <span class="{% if is_visitor_winner %}font-semibold text-neutral-900 dark:text-neutral-100{% else %}text-neutral-500 dark:text-neutral-400{% endif %} truncate text-right">
+              {{ g.visitor_team.abbreviation }}
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

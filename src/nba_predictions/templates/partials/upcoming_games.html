@@ -1,0 +1,36 @@
+<div id="upcoming-games">
+  {% if error %}
+    <p class="text-xs text-neutral-400 dark:text-neutral-500 italic">{{ error }}</p>
+  {% elif not games %}
+    <p class="text-xs text-neutral-400 dark:text-neutral-500 italic">Nema zakazanih utakmica u naredna 3 dana.</p>
+  {% else %}
+    {% set ns = namespace(current_date="") %}
+    {% for g in games %}
+      {% set game_date = g._local_date %}
+      {% if game_date != ns.current_date %}
+        {% set ns.current_date = game_date %}
+        <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mt-4 mb-1 first:mt-0">
+          {{ game_date | serbian_date }}
+        </p>
+      {% endif %}
+      <div class="flex items-center justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-800 last:border-0 text-sm">
+        <span class="text-neutral-700 dark:text-neutral-300">
+          {{ g.home_team.abbreviation }}
+          <span class="text-neutral-400 dark:text-neutral-500 text-xs mx-1">vs</span>
+          {{ g.visitor_team.abbreviation }}
+        </span>
+        {% if g.status == "Final" %}
+          <span class="font-mono text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+            {{ g.home_team_score }} – {{ g.visitor_team_score }}
+          </span>
+        {% elif g.status and g.status not in ("0", "") %}
+          <span class="text-xs text-nba-500 font-semibold">{{ g.status }}</span>
+        {% elif g._local_time %}
+          <span class="text-xs text-neutral-500 dark:text-neutral-400 font-mono">{{ g._local_time }}</span>
+        {% else %}
+          <span class="text-xs text-neutral-400">—</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
